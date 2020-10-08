@@ -18,3 +18,4 @@ tests: mgo tests/*
 	./mgo -v tests/operators.txt
 	./mgo -v tests/keywords.txt
 	./mgo -v tests/strings.txt
+	./mgo -v tests/example.go
