@@ -1,5 +1,4 @@
-all: lex.yy.c mgo
-
+all: mgo
 
 mgo: mgo.c lex.yy.c
 	gcc -o mgo mgo.c
@@ -7,15 +6,14 @@ mgo: mgo.c lex.yy.c
 lex.yy.c: lexer.l
 	flex lexer.l
 
-
 clean:
 	rm mgo lex.yy.c
 
-tests: mgo tests/*
+tests: mgo
 	./mgo -v tests/simple.go
-	./mgo -v tests/nums.txt
-	./mgo -v tests/comments.txt
-	./mgo -v tests/operators.txt
-	./mgo -v tests/keywords.txt
-	./mgo -v tests/strings.txt
+	./mgo -v tests/nums.go
+	./mgo -v tests/comments.go
+	./mgo -v tests/operators.go
+	./mgo -v tests/keywords.go
+	./mgo -v tests/strings.go
 	./mgo -v tests/example.go
