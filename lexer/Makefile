@@ -12,7 +12,8 @@ clean:
 	rm mgo lex.yy.c
 
 tests: mgo tests/*
-	./mgo tests/simple.go
-	./mgo tests/nums.txt
-	./mgo tests/comments.txt
-
+	./mgo -v tests/simple.go
+	./mgo -v tests/nums.txt
+	./mgo -v tests/comments.txt
+	./mgo -v tests/operators.txt
+	./mgo -v tests/keywords.txt

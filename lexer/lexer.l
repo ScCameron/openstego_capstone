@@ -1,9 +1,14 @@
 
-letter_			[A-Za-z_]
-decimal_lit		0|[1-9]("_"?[0-9])*
-hex_lit			0[xX]("_"?[0-9A-Fa-f])+
-string_lit		"'"[\x20-\x7F\x0A]*"'"
-whitespace		[\n\t ]
+letter_				[A-Za-z_]
+decimal_lit			0|[1-9]("_"?[0-9])*
+hex_lit				0[xX]("_"?[0-9A-Fa-f])+
+string_lit			"'"[\x20-\x7F\x0A]*"'"
+whitespace			[\n\t ]
+add_operator		("+"|"-")
+binary_operator		("||"|"&&")
+relational_operator	("=="|"!="|"<"|"<="|">"|">=")
+multiply_operator	("*"|"/"|"%"|"<<"|">>")
+assign_operator		("="|"+="|"-=")
 
 %option noyywrap nounput noinput
 
@@ -12,27 +17,32 @@ whitespace		[\n\t ]
 	CMPT 399 assignment 1
 	Author: Scott Cameron
 	
-	description
-
-	references
+	Description: Parse tokens from a text file to the MacEwan Go Spec
 */
 #include <stdio.h>
 
+// all available tokens, can be expanded easily.
+// NOTE: some tokens such as LINE_COMMENT_START and BLOCK_COMMENT_END are 
+// only used in the intermediary getToken() function and should never be returned by getToken()
 typedef enum {
 	T_ENDFILE, T_ERROR, PACKAGE, ID, FUNC, LPAREN, RPAREN, LBRACE, RBRACE, 
 	PRINTLN, COMMA, NUM, BREAK, CASE, CONST, CONTINUE, DEFAULT, ELSE, FOR,
-	IF, INT, READLN, SWITCH, VAR, STR, 
-	BLOCK_COMMENT_START, LINE_COMMENT_START, BLOCK_COMMENT_END, NEWLINE, DUMMY_TOK
+	IF, INT, READLN, SWITCH, VAR, STR, ADDOP, BINARYOP, RELOP, MULOP, ASSIGNOP,
+	BLOCK_COMMENT_START, LINE_COMMENT_START, BLOCK_COMMENT_END, NEWLINE, 
+	SEMICOLON, DOT, LSQUARE, RSQUARE,
+	DUMMY_TOK
 } Token;
 
 static char *TokenNames[] = {
 	"T_ENDFILE", "ERROR", "PACKAGE", "ID", "FUNC", "LPAREN", "RPAREN", "LBRACE", "RBRACE",
     "PRINTLN", "COMMA", "NUM", "BREAK", "CASE", "CONST", "CONTINUE", "DEFAULT", "ELSE", "FOR",
-    "IF", "INT", "READLN", "SWITCH", "VAR", "STR",
-    "BLOCK_COMMENT_START", "LINE_COMMENT_START", "BLOCK_COMMENT_END", "NEWLINE", "DUUUUUUUUUUMY"
+    "IF", "INT", "READLN", "SWITCH", "VAR", "STR", "ADDOP", "BINARYOP", "RELOP", "MULOP", "ASSIGNOP",
+    "BLOCK_COMMENT_START", "LINE_COMMENT_START", "BLOCK_COMMENT_END", "NEWLINE", 
+	"SEMICOLON", "DOT", "LSQUARE", "RSQUARE",
+	"DUMMY"
 };
 
-int lineNumber;
+int lineNumber; // global variable to track current line number
 
 }
 
@@ -45,6 +55,10 @@ func						{return FUNC;}
 "{"							{return LBRACE;}
 "}"							{return RBRACE;}
 ","							{return COMMA;}
+";"							{return SEMICOLON;}
+"."							{return DOT;}
+"["							{return LSQUARE;}
+"]"							{return RSQUARE;}
 println						{return PRINTLN;}
 break						{return BREAK;}
 case						{return CASE;}
@@ -63,6 +77,11 @@ var							{return VAR;}
 {decimal_lit}|{hex_lit}     {return NUM;}
 {string_lit}                {return STR;}
 
+{add_operator}				{return ADDOP;}
+{binary_operator}			{return BINARYOP;}
+{relational_operator}		{return RELOP;}
+{multiply_operator}			{return MULOP;}
+{assign_operator}			{return ASSIGNOP;}
 
 "/*"                        {return BLOCK_COMMENT_START;}
 "*/"                        {return BLOCK_COMMENT_END;}
@@ -75,26 +94,28 @@ var							{return VAR;}
 
 %%
 
-
+// Get and return the next valid token
 int getToken() {
 	int tok;
-	
 
-	// check for multi-line and single-line comments and keep calling
-	// yyex() until you are no longer reading a comment
 	int blockCommentFlag = 0; // 1 if you are in a block comment
 	int lineCommentFlag = 0; // 1 if you are in a line comment
-	int restartFlag = 0;
-	
+	int restartFlag = 0; 	// used to run through the loop 1 extra time to catch back-to-back
+							// comments and newlines
+
+	// check for multi-line and single-line comments and keep calling
+    // yyex() until you are no longer reading a comment
 	do{
 		restartFlag = 0;
 		tok = yylex();
+
+		// keep track of current line number
 		if(tok == NEWLINE){
 			lineNumber++;
 			restartFlag = 1;;
 		}
 
-		// first check if you are exiting a comment
+		// check if you are exiting a comment
 		if(!lineCommentFlag && blockCommentFlag && tok == BLOCK_COMMENT_END){
 			blockCommentFlag = 0;
 			restartFlag = 1;
@@ -104,16 +125,19 @@ int getToken() {
 			restartFlag = 1;
 		}
 	
-		// next check if you are initiating a comment in case you have back-to-back comments
+		// check if you are initiating a comment
 		if(!lineCommentFlag && tok == BLOCK_COMMENT_START)
             blockCommentFlag = 1;
 		if(!blockCommentFlag && tok == LINE_COMMENT_START)
 			lineCommentFlag = 1;
 
-	}while(blockCommentFlag || lineCommentFlag || restartFlag);
+	} while(blockCommentFlag || lineCommentFlag || restartFlag);
+
+	// edge case for when you get a */ when you arent inside a block comment
+	if(tok == BLOCK_COMMENT_END)
+		return T_ERROR;
 
 	return tok;
-	
 }
 
 
