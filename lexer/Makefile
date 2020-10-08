@@ -17,3 +17,4 @@ tests: mgo tests/*
 	./mgo -v tests/comments.txt
 	./mgo -v tests/operators.txt
 	./mgo -v tests/keywords.txt
+	./mgo -v tests/strings.txt

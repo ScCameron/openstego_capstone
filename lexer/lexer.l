@@ -2,7 +2,7 @@
 letter_				[A-Za-z_]
 decimal_lit			0|[1-9]("_"?[0-9])*
 hex_lit				0[xX]("_"?[0-9A-Fa-f])+
-string_lit			"'"[\x20-\x7F\x0A]*"'"
+string_lit			'[\x20-\x26\x28-\x7F\x0A]*'
 whitespace			[\n\t ]
 add_operator		("+"|"-")
 binary_operator		("||"|"&&")
@@ -10,7 +10,7 @@ relational_operator	("=="|"!="|"<"|"<="|">"|">=")
 multiply_operator	("*"|"/"|"%"|"<<"|">>")
 assign_operator		("="|"+="|"-=")
 
-%option noyywrap nounput noinput
+%option noyywrap nounput noinput yylineno
 
 %top{
 /*
@@ -29,7 +29,7 @@ typedef enum {
 	PRINTLN, COMMA, NUM, BREAK, CASE, CONST, CONTINUE, DEFAULT, ELSE, FOR,
 	IF, INT, READLN, SWITCH, VAR, STR, ADDOP, BINARYOP, RELOP, MULOP, ASSIGNOP,
 	BLOCK_COMMENT_START, LINE_COMMENT_START, BLOCK_COMMENT_END, NEWLINE, 
-	SEMICOLON, DOT, LSQUARE, RSQUARE,
+	SEMICOLON, DOT, LSQUARE, RSQUARE, AMPERSAND, COLON,
 	DUMMY_TOK
 } Token;
 
@@ -38,11 +38,9 @@ static char *TokenNames[] = {
     "PRINTLN", "COMMA", "NUM", "BREAK", "CASE", "CONST", "CONTINUE", "DEFAULT", "ELSE", "FOR",
     "IF", "INT", "READLN", "SWITCH", "VAR", "STR", "ADDOP", "BINARYOP", "RELOP", "MULOP", "ASSIGNOP",
     "BLOCK_COMMENT_START", "LINE_COMMENT_START", "BLOCK_COMMENT_END", "NEWLINE", 
-	"SEMICOLON", "DOT", "LSQUARE", "RSQUARE",
+	"SEMICOLON", "DOT", "LSQUARE", "RSQUARE", "AMPERSAND", "COLON",
 	"DUMMY"
 };
-
-int lineNumber; // global variable to track current line number
 
 }
 
@@ -59,6 +57,8 @@ func						{return FUNC;}
 "."							{return DOT;}
 "["							{return LSQUARE;}
 "]"							{return RSQUARE;}
+"&"							{return AMPERSAND;}
+":"							{return COLON;}
 println						{return PRINTLN;}
 break						{return BREAK;}
 case						{return CASE;}
@@ -110,10 +110,8 @@ int getToken() {
 		tok = yylex();
 
 		// keep track of current line number
-		if(tok == NEWLINE){
-			lineNumber++;
-			restartFlag = 1;;
-		}
+		if(tok == NEWLINE)
+			restartFlag = 1;
 
 		// check if you are exiting a comment
 		if(!lineCommentFlag && blockCommentFlag && tok == BLOCK_COMMENT_END){

@@ -5,7 +5,6 @@
 
 // Parse arguments and get all tokens from an input file
 int main(int argc, char **argv ) {
-	lineNumber = 1; // global int vaariable declared in lexer.l
 	int verboseFlag =0;
 	int c;
 
@@ -37,7 +36,7 @@ int main(int argc, char **argv ) {
     int tok;
     while((tok = getToken()) != T_ENDFILE){
 		if(verboseFlag)
-			printf("%d, %s, %s\n", lineNumber, TokenNames[tok], yytext);
+			printf("%d, %s, %s\n", yylineno, TokenNames[tok], yytext);
     }
 
 	return 0;
