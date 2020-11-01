@@ -26,7 +26,9 @@ lexer.o: lexer.c parser.h
 %.c %.h: %.l
 	$(LEX) $(LFLAGS) -o $*.c $<
 
+tests: mgo
+	./mgo tests/
+	
 
 clean:
-	$(RM) *.o *.out parser.h parser.c lexer.h lexer.c lemon mgo
-
+	rm *.o lexer.h lexer.c parser.h parser.c parser.out lemon mgo || true 

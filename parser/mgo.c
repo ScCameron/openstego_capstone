@@ -6,31 +6,41 @@
 #include "tree.h"
 
 void *ParseAlloc(void *(*)(size_t));
-void Parse(void *, int, void *);
+void Parse(void *, int, void *, treeNode *);
 void ParseFree(void *, void (*)(void *));
+
+void printHelp() {
+printf("usage: mgo [options] file\n\n\
+Compile programs written in the MacEwan Go programming language.\n\n\
+Options :\n\
+    -h      display this help and exit\n\
+    -v      display extra ( verbose ) debugging information\n\
+            ( multiple -v options increase verbosity )\n");
+
+}
 
 
 // Parse arguments and get all tokens from an input file
 int main(int argc, char **argv ) {
-	int verboseFlag =0;
+	int verboseLevel = 0;
 	int c;
 
 	// getopt with options "h" for help message and "v" for verbose output
 	while((c = getopt (argc, argv, "hv")) != -1){
 		switch(c){
 			case 'v':
-				verboseFlag = 1;
+				verboseLevel++;
 				break;
 			case 'h':
-				printf("usage: mgo [options] file\n");
+				printHelp();
 				return 0;
 		}
 	}
 
 	// if the user didn't input a filename, print usage and exit
 	if(optind == argc){
-        printf("usage: mgo [options] file\n");
-        return 0;
+        printHelp();
+		return 0;
     }
 
 	// set yyin to open the user input filename, exit on error 
@@ -47,21 +57,21 @@ int main(int argc, char **argv ) {
 
 	// get tokens from input file until end of file is reached
     int tok;
-	char *yylval;	
+	char *yylval;
+	treeNode *root = newNode("Root", 1);
 	do {
 		tok = getToken();
-		//yylval = getyylval();
-		if(verboseFlag)
+		if(verboseLevel > 1)
 			printf("%d, %s, %s\n", yylineno, TokenNames[tok], yytext);
-		    
 		char *tokText = calloc(strlen(yytext+1), sizeof(char));
 		strcpy(tokText, yytext);
-		Parse(parser, tok, tokText);
+		Parse(parser, tok, tokText, root);
 		//free(tokText);
 	} while (tok != T_ENDFILE);
 
+	if(verboseLevel > 0)
+		traverseTree(0, root, printTreeNode, NULL);
 	ParseFree(parser, free);
-	
 	yylex_destroy();
 
 	return 0;
