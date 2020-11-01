@@ -32,14 +32,11 @@ func main(){
 
 	switch i{
 		case 1:
-			i = i +  2 + 1 - 2 / 12 * 120;
+			i = i * 2 / 1 - 2 + 12 + 120;
 		default:
 			println(i);
 	};
 
 
-	i = i + 1 * 3;
-	i = 1 * 3 + i;
-
-
+	i = i * 1 + 3;
 };

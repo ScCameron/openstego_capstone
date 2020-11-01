@@ -8,6 +8,7 @@ CC=gcc
 CFLAGS=-std=c99 #-Wall
 LEX=flex
 LFLAGS=--header-file=$*.h
+TESTS=./mgo -vv tests/
 
 all: mgo
 
@@ -27,8 +28,16 @@ lexer.o: lexer.c parser.h
 	$(LEX) $(LFLAGS) -o $*.c $<
 
 tests: mgo
-	./mgo tests/
+	${TESTS}sample.go
+	${TESTS}sample2.go
+	${TESTS}constvar.go
+	${TESTS}ifelse.go
+	${TESTS}if.go
+	${TESTS}loop.go
+	${TESTS}printread.go
+	${TESTS}switch.go
+	${TESTS}example.go
 	
 
 clean:
-	rm *.o lexer.h lexer.c parser.h parser.c parser.out lemon mgo || true 
+	$(RM) *.o lexer.{c,h} parser.{c,h,o} lemon mgo || true 

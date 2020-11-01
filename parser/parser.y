@@ -106,7 +106,6 @@ constSpec(A) ::= identifier(B) ASSIGNOP STR(C). {
 
 varDecl(A) ::= VAR varSpec(B). {
 	A = B;
-	/*A->sibling = NULL;*/
 }
 varDecl(A) ::= VAR LPAREN varDeclRepeat(B) RPAREN. {
 	A = B;

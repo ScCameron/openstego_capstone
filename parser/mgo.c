@@ -73,6 +73,7 @@ int main(int argc, char **argv ) {
 		traverseTree(0, root, printTreeNode, NULL);
 	ParseFree(parser, free);
 	yylex_destroy();
+	traverseTree(0, root, printTreeNode, destroyTreeNode);
 
 	return 0;
 }

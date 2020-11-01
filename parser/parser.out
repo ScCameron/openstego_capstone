@@ -1,0 +1,1709 @@
+State 0:
+          program ::= * packageClause SEMICOLON topLevelDecl SEMICOLON
+          packageClause ::= * PACKAGE identifier
+
+                       PACKAGE shift        48     
+                       program accept
+                 packageClause shift        90     
+
+State 1:
+          identifier ::= * ID
+          block ::= * LBRACE block2 block3 statementList RBRACE
+          statementList ::= * statementListRepeat
+          statementListRepeat ::= * statement SEMICOLON statementListRepeat
+     (31) statementListRepeat ::= *
+          statement ::= * simpleStmt
+          statement ::= * breakStmt
+          statement ::= * continueStmt
+          statement ::= * block
+          statement ::= * ifStmt
+          statement ::= * switchStmt
+          statement ::= * forStmt
+          statement ::= * printlnStmt
+          statement ::= * readlnStmt
+          simpleStmt ::= * emptyStmt
+          simpleStmt ::= * assignmentStmt
+          simpleStmt ::= * expression
+     (44) emptyStmt ::= *
+          assignmentStmt ::= * variable assignOp expression
+          variable ::= * identifier
+          variable ::= * identifier LSQUARE expression RSQUARE
+          expression ::= * unaryExpr
+          expression ::= * opExpression
+          opExpression ::= * expression binopExpression
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+          breakStmt ::= * BREAK
+          continueStmt ::= * CONTINUE
+          ifStmt ::= * IF condition block
+          ifStmt ::= * IF condition block ELSE ifStmt
+          ifStmt ::= * IF condition block ELSE block
+          switchStmt ::= * SWITCH expression LBRACE switchStmtRepeat RBRACE
+          caseClause ::= switchCase COLON * statementList
+          forStmt ::= * FOR block
+          forStmt ::= * FOR condition block
+          printlnStmt ::= * PRINTLN LPAREN expression printlnStmtRepeat RPAREN
+          readlnStmt ::= * READLN LPAREN AMPERSAND variable readlnStmtRepeat RPAREN
+
+                     SEMICOLON reduce       44     emptyStmt ::=
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                        LBRACE shift        44     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                         BREAK shift-reduce 67     breakStmt ::= BREAK
+                      CONTINUE shift-reduce 68     continueStmt ::= CONTINUE
+                            IF shift        16     
+                        SWITCH shift        21     
+                           FOR shift        14     
+                       PRINTLN shift        72     
+                        READLN shift        70     
+                     statement shift        78     
+                    identifier shift        60     
+                         block shift-reduce 35     statement ::= block
+                 statementList shift-reduce 76     caseClause ::= switchCase COLON statementList
+           statementListRepeat shift-reduce 29     statementList ::= statementListRepeat
+                    simpleStmt shift-reduce 32     statement ::= simpleStmt
+                     breakStmt shift-reduce 33     statement ::= breakStmt
+                  continueStmt shift-reduce 34     statement ::= continueStmt
+                        ifStmt shift-reduce 36     statement ::= ifStmt
+                    switchStmt shift-reduce 37     statement ::= switchStmt
+                       forStmt shift-reduce 38     statement ::= forStmt
+                   printlnStmt shift-reduce 39     statement ::= printlnStmt
+                    readlnStmt shift-reduce 40     statement ::= readlnStmt
+                     emptyStmt shift-reduce 41     simpleStmt ::= emptyStmt
+                assignmentStmt shift-reduce 42     simpleStmt ::= assignmentStmt
+                    expression shift        13     
+                      variable shift        55     
+                     unaryExpr shift-reduce 49     expression ::= unaryExpr
+                  opExpression shift-reduce 50     expression ::= opExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+                     {default} reduce       31     statementListRepeat ::=
+
+State 2:
+          identifier ::= * ID
+          block ::= * LBRACE block2 block3 statementList RBRACE
+          block ::= LBRACE block2 block3 * statementList RBRACE
+          statementList ::= * statementListRepeat
+          statementListRepeat ::= * statement SEMICOLON statementListRepeat
+     (31) statementListRepeat ::= *
+          statement ::= * simpleStmt
+          statement ::= * breakStmt
+          statement ::= * continueStmt
+          statement ::= * block
+          statement ::= * ifStmt
+          statement ::= * switchStmt
+          statement ::= * forStmt
+          statement ::= * printlnStmt
+          statement ::= * readlnStmt
+          simpleStmt ::= * emptyStmt
+          simpleStmt ::= * assignmentStmt
+          simpleStmt ::= * expression
+     (44) emptyStmt ::= *
+          assignmentStmt ::= * variable assignOp expression
+          variable ::= * identifier
+          variable ::= * identifier LSQUARE expression RSQUARE
+          expression ::= * unaryExpr
+          expression ::= * opExpression
+          opExpression ::= * expression binopExpression
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+          breakStmt ::= * BREAK
+          continueStmt ::= * CONTINUE
+          ifStmt ::= * IF condition block
+          ifStmt ::= * IF condition block ELSE ifStmt
+          ifStmt ::= * IF condition block ELSE block
+          switchStmt ::= * SWITCH expression LBRACE switchStmtRepeat RBRACE
+          forStmt ::= * FOR block
+          forStmt ::= * FOR condition block
+          printlnStmt ::= * PRINTLN LPAREN expression printlnStmtRepeat RPAREN
+          readlnStmt ::= * READLN LPAREN AMPERSAND variable readlnStmtRepeat RPAREN
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                        LBRACE shift        44     
+                        RBRACE reduce       31     statementListRepeat ::=
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                         BREAK shift-reduce 67     breakStmt ::= BREAK
+                      CONTINUE shift-reduce 68     continueStmt ::= CONTINUE
+                            IF shift        16     
+                        SWITCH shift        21     
+                           FOR shift        14     
+                       PRINTLN shift        72     
+                        READLN shift        70     
+                     statement shift        78     
+                    identifier shift        60     
+                         block shift-reduce 35     statement ::= block
+                 statementList shift        79     
+           statementListRepeat shift-reduce 29     statementList ::= statementListRepeat
+                    simpleStmt shift-reduce 32     statement ::= simpleStmt
+                     breakStmt shift-reduce 33     statement ::= breakStmt
+                  continueStmt shift-reduce 34     statement ::= continueStmt
+                        ifStmt shift-reduce 36     statement ::= ifStmt
+                    switchStmt shift-reduce 37     statement ::= switchStmt
+                       forStmt shift-reduce 38     statement ::= forStmt
+                   printlnStmt shift-reduce 39     statement ::= printlnStmt
+                    readlnStmt shift-reduce 40     statement ::= readlnStmt
+                     emptyStmt shift-reduce 41     simpleStmt ::= emptyStmt
+                assignmentStmt shift-reduce 42     simpleStmt ::= assignmentStmt
+                    expression shift        13     
+                      variable shift        55     
+                     unaryExpr shift-reduce 49     expression ::= unaryExpr
+                  opExpression shift-reduce 50     expression ::= opExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+                     {default} reduce       44     emptyStmt ::=
+
+State 3:
+          identifier ::= * ID
+          block ::= * LBRACE block2 block3 statementList RBRACE
+          statementListRepeat ::= * statement SEMICOLON statementListRepeat
+          statementListRepeat ::= statement SEMICOLON * statementListRepeat
+     (31) statementListRepeat ::= *
+          statement ::= * simpleStmt
+          statement ::= * breakStmt
+          statement ::= * continueStmt
+          statement ::= * block
+          statement ::= * ifStmt
+          statement ::= * switchStmt
+          statement ::= * forStmt
+          statement ::= * printlnStmt
+          statement ::= * readlnStmt
+          simpleStmt ::= * emptyStmt
+          simpleStmt ::= * assignmentStmt
+          simpleStmt ::= * expression
+     (44) emptyStmt ::= *
+          assignmentStmt ::= * variable assignOp expression
+          variable ::= * identifier
+          variable ::= * identifier LSQUARE expression RSQUARE
+          expression ::= * unaryExpr
+          expression ::= * opExpression
+          opExpression ::= * expression binopExpression
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+          breakStmt ::= * BREAK
+          continueStmt ::= * CONTINUE
+          ifStmt ::= * IF condition block
+          ifStmt ::= * IF condition block ELSE ifStmt
+          ifStmt ::= * IF condition block ELSE block
+          switchStmt ::= * SWITCH expression LBRACE switchStmtRepeat RBRACE
+          forStmt ::= * FOR block
+          forStmt ::= * FOR condition block
+          printlnStmt ::= * PRINTLN LPAREN expression printlnStmtRepeat RPAREN
+          readlnStmt ::= * READLN LPAREN AMPERSAND variable readlnStmtRepeat RPAREN
+
+                     SEMICOLON reduce       44     emptyStmt ::=
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                        LBRACE shift        44     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                         BREAK shift-reduce 67     breakStmt ::= BREAK
+                      CONTINUE shift-reduce 68     continueStmt ::= CONTINUE
+                            IF shift        16     
+                        SWITCH shift        21     
+                           FOR shift        14     
+                       PRINTLN shift        72     
+                        READLN shift        70     
+                     statement shift        78     
+                    identifier shift        60     
+                         block shift-reduce 35     statement ::= block
+           statementListRepeat shift-reduce 30     statementListRepeat ::= statement SEMICOLON statementListRepeat
+                    simpleStmt shift-reduce 32     statement ::= simpleStmt
+                     breakStmt shift-reduce 33     statement ::= breakStmt
+                  continueStmt shift-reduce 34     statement ::= continueStmt
+                        ifStmt shift-reduce 36     statement ::= ifStmt
+                    switchStmt shift-reduce 37     statement ::= switchStmt
+                       forStmt shift-reduce 38     statement ::= forStmt
+                   printlnStmt shift-reduce 39     statement ::= printlnStmt
+                    readlnStmt shift-reduce 40     statement ::= readlnStmt
+                     emptyStmt shift-reduce 41     simpleStmt ::= emptyStmt
+                assignmentStmt shift-reduce 42     simpleStmt ::= assignmentStmt
+                    expression shift        13     
+                      variable shift        55     
+                     unaryExpr shift-reduce 49     expression ::= unaryExpr
+                  opExpression shift-reduce 50     expression ::= opExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+                     {default} reduce       31     statementListRepeat ::=
+
+State 4:
+          identifier ::= * ID
+          opExpression ::= expression * binopExpression
+          binopExpression ::= * BINARYOP relopExpression
+          binopExpression ::= * relopExpression
+          relopExpression ::= * RELOP addExpression
+          relopExpression ::= * addExpression
+          addExpression ::= * ADDOP mulExpression
+          addExpression ::= * mulExpression
+          mulExpression ::= * MULOP unaryExpr
+          mulExpression ::= * unaryExpr
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+          printlnStmtRepeat ::= * COMMA expression printlnStmtRepeat
+          printlnStmtRepeat ::= COMMA expression * printlnStmtRepeat
+     (88) printlnStmtRepeat ::= *
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                      BINARYOP shift        15     
+                         RELOP shift        17     
+                         ADDOP shift        26     
+                         MULOP shift        28     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                         COMMA shift        19     
+                    identifier shift        77     
+                     unaryExpr shift-reduce 59     mulExpression ::= unaryExpr
+               binopExpression shift-reduce 51     opExpression ::= expression binopExpression
+               relopExpression shift-reduce 53     binopExpression ::= relopExpression
+                 addExpression shift-reduce 55     relopExpression ::= addExpression
+                 mulExpression shift-reduce 57     addExpression ::= mulExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+             printlnStmtRepeat shift-reduce 87     printlnStmtRepeat ::= COMMA expression printlnStmtRepeat
+                     {default} reduce       88     printlnStmtRepeat ::=
+
+State 5:
+          identifier ::= * ID
+          opExpression ::= expression * binopExpression
+          binopExpression ::= * BINARYOP relopExpression
+          binopExpression ::= * relopExpression
+          relopExpression ::= * RELOP addExpression
+          relopExpression ::= * addExpression
+          addExpression ::= * ADDOP mulExpression
+          addExpression ::= * mulExpression
+          mulExpression ::= * MULOP unaryExpr
+          mulExpression ::= * unaryExpr
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+          printlnStmt ::= PRINTLN LPAREN expression * printlnStmtRepeat RPAREN
+          printlnStmtRepeat ::= * COMMA expression printlnStmtRepeat
+     (88) printlnStmtRepeat ::= *
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                      BINARYOP shift        15     
+                         RELOP shift        17     
+                         ADDOP shift        26     
+                         MULOP shift        28     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                         COMMA shift        19     
+                    identifier shift        77     
+                     unaryExpr shift-reduce 59     mulExpression ::= unaryExpr
+               binopExpression shift-reduce 51     opExpression ::= expression binopExpression
+               relopExpression shift-reduce 53     binopExpression ::= relopExpression
+                 addExpression shift-reduce 55     relopExpression ::= addExpression
+                 mulExpression shift-reduce 57     addExpression ::= mulExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+             printlnStmtRepeat shift        71     
+                     {default} reduce       88     printlnStmtRepeat ::=
+
+State 6:
+          identifier ::= * ID
+          variable ::= identifier LSQUARE expression * RSQUARE
+          opExpression ::= expression * binopExpression
+          binopExpression ::= * BINARYOP relopExpression
+          binopExpression ::= * relopExpression
+          relopExpression ::= * RELOP addExpression
+          relopExpression ::= * addExpression
+          addExpression ::= * ADDOP mulExpression
+          addExpression ::= * mulExpression
+          mulExpression ::= * MULOP unaryExpr
+          mulExpression ::= * unaryExpr
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                       RSQUARE shift-reduce 47     variable ::= identifier LSQUARE expression RSQUARE
+                      BINARYOP shift        15     
+                         RELOP shift        17     
+                         ADDOP shift        26     
+                         MULOP shift        28     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                     unaryExpr shift-reduce 59     mulExpression ::= unaryExpr
+               binopExpression shift-reduce 51     opExpression ::= expression binopExpression
+               relopExpression shift-reduce 53     binopExpression ::= relopExpression
+                 addExpression shift-reduce 55     relopExpression ::= addExpression
+                 mulExpression shift-reduce 57     addExpression ::= mulExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 7:
+          identifier ::= * ID
+          opExpression ::= expression * binopExpression
+          binopExpression ::= * BINARYOP relopExpression
+          binopExpression ::= * relopExpression
+          relopExpression ::= * RELOP addExpression
+          relopExpression ::= * addExpression
+          addExpression ::= * ADDOP mulExpression
+          addExpression ::= * mulExpression
+          mulExpression ::= * MULOP unaryExpr
+          mulExpression ::= * unaryExpr
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+          switchStmt ::= SWITCH expression * LBRACE switchStmtRepeat RBRACE
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                        LBRACE shift        30     
+                      BINARYOP shift        15     
+                         RELOP shift        17     
+                         ADDOP shift        26     
+                         MULOP shift        28     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                     unaryExpr shift-reduce 59     mulExpression ::= unaryExpr
+               binopExpression shift-reduce 51     opExpression ::= expression binopExpression
+               relopExpression shift-reduce 53     binopExpression ::= relopExpression
+                 addExpression shift-reduce 55     relopExpression ::= addExpression
+                 mulExpression shift-reduce 57     addExpression ::= mulExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 8:
+          identifier ::= * ID
+          variable ::= identifier LSQUARE expression * RSQUARE
+          opExpression ::= expression * binopExpression
+          binopExpression ::= * BINARYOP relopExpression
+          binopExpression ::= * relopExpression
+          relopExpression ::= * RELOP addExpression
+          relopExpression ::= * addExpression
+          addExpression ::= * ADDOP mulExpression
+          addExpression ::= * mulExpression
+          mulExpression ::= * MULOP unaryExpr
+          mulExpression ::= * unaryExpr
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= identifier LSQUARE expression * RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                       RSQUARE shift        76     
+                      BINARYOP shift        15     
+                         RELOP shift        17     
+                         ADDOP shift        26     
+                         MULOP shift        28     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                     unaryExpr shift-reduce 59     mulExpression ::= unaryExpr
+               binopExpression shift-reduce 51     opExpression ::= expression binopExpression
+               relopExpression shift-reduce 53     binopExpression ::= relopExpression
+                 addExpression shift-reduce 55     relopExpression ::= addExpression
+                 mulExpression shift-reduce 57     addExpression ::= mulExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 9:
+          identifier ::= * ID
+          opExpression ::= expression * binopExpression
+          binopExpression ::= * BINARYOP relopExpression
+          binopExpression ::= * relopExpression
+          relopExpression ::= * RELOP addExpression
+          relopExpression ::= * addExpression
+          addExpression ::= * ADDOP mulExpression
+          addExpression ::= * mulExpression
+          mulExpression ::= * MULOP unaryExpr
+          mulExpression ::= * unaryExpr
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= identifier LSQUARE expression * RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                       RSQUARE shift-reduce 64     primaryExpr ::= identifier LSQUARE expression RSQUARE
+                      BINARYOP shift        15     
+                         RELOP shift        17     
+                         ADDOP shift        26     
+                         MULOP shift        28     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                     unaryExpr shift-reduce 59     mulExpression ::= unaryExpr
+               binopExpression shift-reduce 51     opExpression ::= expression binopExpression
+               relopExpression shift-reduce 53     binopExpression ::= relopExpression
+                 addExpression shift-reduce 55     relopExpression ::= addExpression
+                 mulExpression shift-reduce 57     addExpression ::= mulExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 10:
+          identifier ::= * ID
+          opExpression ::= expression * binopExpression
+          binopExpression ::= * BINARYOP relopExpression
+          binopExpression ::= * relopExpression
+          relopExpression ::= * RELOP addExpression
+          relopExpression ::= * addExpression
+          addExpression ::= * ADDOP mulExpression
+          addExpression ::= * mulExpression
+          mulExpression ::= * MULOP unaryExpr
+          mulExpression ::= * unaryExpr
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= LPAREN expression * RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                        RPAREN shift-reduce 63     primaryExpr ::= LPAREN expression RPAREN
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                      BINARYOP shift        15     
+                         RELOP shift        17     
+                         ADDOP shift        26     
+                         MULOP shift        28     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                     unaryExpr shift-reduce 59     mulExpression ::= unaryExpr
+               binopExpression shift-reduce 51     opExpression ::= expression binopExpression
+               relopExpression shift-reduce 53     binopExpression ::= relopExpression
+                 addExpression shift-reduce 55     relopExpression ::= addExpression
+                 mulExpression shift-reduce 57     addExpression ::= mulExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 11:
+          identifier ::= * ID
+          opExpression ::= expression * binopExpression
+          binopExpression ::= * BINARYOP relopExpression
+          binopExpression ::= * relopExpression
+          relopExpression ::= * RELOP addExpression
+          relopExpression ::= * addExpression
+          addExpression ::= * ADDOP mulExpression
+          addExpression ::= * mulExpression
+          mulExpression ::= * MULOP unaryExpr
+          mulExpression ::= * unaryExpr
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+     (72) condition ::= expression *
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                      BINARYOP shift        15     
+                         RELOP shift        17     
+                         ADDOP shift        26     
+                         MULOP shift        28     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                     unaryExpr shift-reduce 59     mulExpression ::= unaryExpr
+               binopExpression shift-reduce 51     opExpression ::= expression binopExpression
+               relopExpression shift-reduce 53     binopExpression ::= relopExpression
+                 addExpression shift-reduce 55     relopExpression ::= addExpression
+                 mulExpression shift-reduce 57     addExpression ::= mulExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+                     {default} reduce       72     condition ::= expression
+
+State 12:
+          identifier ::= * ID
+     (45) assignmentStmt ::= variable assignOp expression *
+          opExpression ::= expression * binopExpression
+          binopExpression ::= * BINARYOP relopExpression
+          binopExpression ::= * relopExpression
+          relopExpression ::= * RELOP addExpression
+          relopExpression ::= * addExpression
+          addExpression ::= * ADDOP mulExpression
+          addExpression ::= * mulExpression
+          mulExpression ::= * MULOP unaryExpr
+          mulExpression ::= * unaryExpr
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                      BINARYOP shift        15     
+                         RELOP shift        17     
+                         ADDOP shift        26     
+                         MULOP shift        28     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                     unaryExpr shift-reduce 59     mulExpression ::= unaryExpr
+               binopExpression shift-reduce 51     opExpression ::= expression binopExpression
+               relopExpression shift-reduce 53     binopExpression ::= relopExpression
+                 addExpression shift-reduce 55     relopExpression ::= addExpression
+                 mulExpression shift-reduce 57     addExpression ::= mulExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+                     {default} reduce       45     assignmentStmt ::= variable assignOp expression
+
+State 13:
+          identifier ::= * ID
+     (43) simpleStmt ::= expression *
+          opExpression ::= expression * binopExpression
+          binopExpression ::= * BINARYOP relopExpression
+          binopExpression ::= * relopExpression
+          relopExpression ::= * RELOP addExpression
+          relopExpression ::= * addExpression
+          addExpression ::= * ADDOP mulExpression
+          addExpression ::= * mulExpression
+          mulExpression ::= * MULOP unaryExpr
+          mulExpression ::= * unaryExpr
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                      BINARYOP shift        15     
+                         RELOP shift        17     
+                         ADDOP shift        26     
+                         MULOP shift        28     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                     unaryExpr shift-reduce 59     mulExpression ::= unaryExpr
+               binopExpression shift-reduce 51     opExpression ::= expression binopExpression
+               relopExpression shift-reduce 53     binopExpression ::= relopExpression
+                 addExpression shift-reduce 55     relopExpression ::= addExpression
+                 mulExpression shift-reduce 57     addExpression ::= mulExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+                     {default} reduce       43     simpleStmt ::= expression
+
+State 14:
+          identifier ::= * ID
+          block ::= * LBRACE block2 block3 statementList RBRACE
+          expression ::= * unaryExpr
+          expression ::= * opExpression
+          opExpression ::= * expression binopExpression
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+          condition ::= * expression
+          forStmt ::= FOR * block
+          forStmt ::= FOR * condition block
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                        LBRACE shift        44     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                         block shift-reduce 84     forStmt ::= FOR block
+                    expression shift        11     
+                     unaryExpr shift-reduce 49     expression ::= unaryExpr
+                  opExpression shift-reduce 50     expression ::= opExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+                     condition shift        53     
+
+State 15:
+          identifier ::= * ID
+          binopExpression ::= BINARYOP * relopExpression
+          relopExpression ::= * RELOP addExpression
+          relopExpression ::= * addExpression
+          addExpression ::= * ADDOP mulExpression
+          addExpression ::= * mulExpression
+          mulExpression ::= * MULOP unaryExpr
+          mulExpression ::= * unaryExpr
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                         RELOP shift        17     
+                         ADDOP shift        26     
+                         MULOP shift        28     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                     unaryExpr shift-reduce 59     mulExpression ::= unaryExpr
+               relopExpression shift-reduce 52     binopExpression ::= BINARYOP relopExpression
+                 addExpression shift-reduce 55     relopExpression ::= addExpression
+                 mulExpression shift-reduce 57     addExpression ::= mulExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 16:
+          identifier ::= * ID
+          expression ::= * unaryExpr
+          expression ::= * opExpression
+          opExpression ::= * expression binopExpression
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+          ifStmt ::= IF * condition block
+          ifStmt ::= IF * condition block ELSE ifStmt
+          ifStmt ::= IF * condition block ELSE block
+          condition ::= * expression
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                    expression shift        11     
+                     unaryExpr shift-reduce 49     expression ::= unaryExpr
+                  opExpression shift-reduce 50     expression ::= opExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+                     condition shift        54     
+
+State 17:
+          identifier ::= * ID
+          relopExpression ::= RELOP * addExpression
+          addExpression ::= * ADDOP mulExpression
+          addExpression ::= * mulExpression
+          mulExpression ::= * MULOP unaryExpr
+          mulExpression ::= * unaryExpr
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                         ADDOP shift        26     
+                         MULOP shift        28     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                     unaryExpr shift-reduce 59     mulExpression ::= unaryExpr
+                 addExpression shift-reduce 54     relopExpression ::= RELOP addExpression
+                 mulExpression shift-reduce 57     addExpression ::= mulExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 18:
+          identifier ::= * ID
+          variable ::= identifier LSQUARE * expression RSQUARE
+          expression ::= * unaryExpr
+          expression ::= * opExpression
+          opExpression ::= * expression binopExpression
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                    expression shift        6      
+                     unaryExpr shift-reduce 49     expression ::= unaryExpr
+                  opExpression shift-reduce 50     expression ::= opExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 19:
+          identifier ::= * ID
+          expression ::= * unaryExpr
+          expression ::= * opExpression
+          opExpression ::= * expression binopExpression
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+          printlnStmtRepeat ::= COMMA * expression printlnStmtRepeat
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                    expression shift        4      
+                     unaryExpr shift-reduce 49     expression ::= unaryExpr
+                  opExpression shift-reduce 50     expression ::= opExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 20:
+          identifier ::= * ID
+          expression ::= * unaryExpr
+          expression ::= * opExpression
+          opExpression ::= * expression binopExpression
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+          printlnStmt ::= PRINTLN LPAREN * expression printlnStmtRepeat RPAREN
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                    expression shift        5      
+                     unaryExpr shift-reduce 49     expression ::= unaryExpr
+                  opExpression shift-reduce 50     expression ::= opExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 21:
+          identifier ::= * ID
+          expression ::= * unaryExpr
+          expression ::= * opExpression
+          opExpression ::= * expression binopExpression
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+          switchStmt ::= SWITCH * expression LBRACE switchStmtRepeat RBRACE
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                    expression shift        7      
+                     unaryExpr shift-reduce 49     expression ::= unaryExpr
+                  opExpression shift-reduce 50     expression ::= opExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 22:
+          identifier ::= * ID
+          variable ::= identifier LSQUARE * expression RSQUARE
+          expression ::= * unaryExpr
+          expression ::= * opExpression
+          opExpression ::= * expression binopExpression
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= identifier LSQUARE * expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                    expression shift        8      
+                     unaryExpr shift-reduce 49     expression ::= unaryExpr
+                  opExpression shift-reduce 50     expression ::= opExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 23:
+          identifier ::= * ID
+          assignmentStmt ::= variable assignOp * expression
+          expression ::= * unaryExpr
+          expression ::= * opExpression
+          opExpression ::= * expression binopExpression
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                    expression shift        12     
+                     unaryExpr shift-reduce 49     expression ::= unaryExpr
+                  opExpression shift-reduce 50     expression ::= opExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 24:
+          identifier ::= * ID
+          expression ::= * unaryExpr
+          expression ::= * opExpression
+          opExpression ::= * expression binopExpression
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= identifier LSQUARE * expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                    expression shift        9      
+                     unaryExpr shift-reduce 49     expression ::= unaryExpr
+                  opExpression shift-reduce 50     expression ::= opExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 25:
+          identifier ::= * ID
+          expression ::= * unaryExpr
+          expression ::= * opExpression
+          opExpression ::= * expression binopExpression
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= LPAREN * expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                    expression shift        10     
+                     unaryExpr shift-reduce 49     expression ::= unaryExpr
+                  opExpression shift-reduce 50     expression ::= opExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 26:
+          identifier ::= * ID
+          addExpression ::= ADDOP * mulExpression
+          mulExpression ::= * MULOP unaryExpr
+          mulExpression ::= * unaryExpr
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                         MULOP shift        28     
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                     unaryExpr shift-reduce 59     mulExpression ::= unaryExpr
+                 mulExpression shift-reduce 56     addExpression ::= ADDOP mulExpression
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 27:
+          identifier ::= * ID
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= unaryOp * unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                     unaryExpr shift-reduce 60     unaryExpr ::= unaryOp unaryExpr
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 28:
+          identifier ::= * ID
+          mulExpression ::= MULOP * unaryExpr
+          unaryExpr ::= * unaryOp unaryExpr
+          unaryExpr ::= * primaryExpr
+          primaryExpr ::= * NUM
+          primaryExpr ::= * LPAREN expression RPAREN
+          primaryExpr ::= * identifier LSQUARE expression RSQUARE
+          primaryExpr ::= * identifier
+          unaryOp ::= * UNARYOP
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        25     
+                           NUM shift-reduce 62     primaryExpr ::= NUM
+                       UNARYOP shift-reduce 66     unaryOp ::= UNARYOP
+                    identifier shift        77     
+                     unaryExpr shift-reduce 58     mulExpression ::= MULOP unaryExpr
+                       unaryOp shift        27     
+                   primaryExpr shift-reduce 61     unaryExpr ::= primaryExpr
+
+State 29:
+          switchStmtRepeat ::= * caseClause switchStmtRepeat
+          switchStmtRepeat ::= caseClause * switchStmtRepeat
+     (75) switchStmtRepeat ::= *
+          caseClause ::= * switchCase COLON statementList
+          switchCase ::= * CASE constList
+          switchCase ::= * DEFAULT
+
+                          CASE shift        37     
+                       DEFAULT shift-reduce 78     switchCase ::= DEFAULT
+              switchStmtRepeat shift-reduce 74     switchStmtRepeat ::= caseClause switchStmtRepeat
+                    caseClause shift        29     
+                    switchCase shift        73     
+                     {default} reduce       75     switchStmtRepeat ::=
+
+State 30:
+          switchStmt ::= SWITCH expression LBRACE * switchStmtRepeat RBRACE
+          switchStmtRepeat ::= * caseClause switchStmtRepeat
+     (75) switchStmtRepeat ::= *
+          caseClause ::= * switchCase COLON statementList
+          switchCase ::= * CASE constList
+          switchCase ::= * DEFAULT
+
+                          CASE shift        37     
+                       DEFAULT shift-reduce 78     switchCase ::= DEFAULT
+              switchStmtRepeat shift        74     
+                    caseClause shift        29     
+                    switchCase shift        73     
+                     {default} reduce       75     switchStmtRepeat ::=
+
+State 31:
+          varSpec ::= identifier * type
+          type ::= * typeName
+          type ::= * arrayType
+          arrayType ::= * LSQUARE constant RSQUARE typeName
+          typeName ::= * INT
+
+                       LSQUARE shift        47     
+                           INT shift-reduce 22     typeName ::= INT
+                          type shift-reduce 18     varSpec ::= identifier type
+                      typeName shift-reduce 19     type ::= typeName
+                     arrayType shift-reduce 20     type ::= arrayType
+
+State 32:
+          identifier ::= * ID
+          varDeclRepeat ::= * varSpec SEMICOLON varDeclRepeat
+          varDeclRepeat ::= varSpec SEMICOLON * varDeclRepeat
+     (17) varDeclRepeat ::= *
+          varSpec ::= * identifier type
+
+                            ID shift-reduce 2      identifier ::= ID
+                       varSpec shift        81     
+                 varDeclRepeat shift-reduce 16     varDeclRepeat ::= varSpec SEMICOLON varDeclRepeat
+                    identifier shift        31     
+                     {default} reduce       17     varDeclRepeat ::=
+
+State 33:
+          identifier ::= * ID
+          varDecl ::= VAR LPAREN * varDeclRepeat RPAREN
+          varDeclRepeat ::= * varSpec SEMICOLON varDeclRepeat
+     (17) varDeclRepeat ::= *
+          varSpec ::= * identifier type
+
+                            ID shift-reduce 2      identifier ::= ID
+                       varSpec shift        81     
+                 varDeclRepeat shift        82     
+                    identifier shift        31     
+                     {default} reduce       17     varDeclRepeat ::=
+
+State 34:
+          identifier ::= * ID
+          constDeclRepeat ::= * constSpec SEMICOLON constDeclRepeat
+          constDeclRepeat ::= constSpec SEMICOLON * constDeclRepeat
+     (11) constDeclRepeat ::= *
+          constSpec ::= * identifier ASSIGNOP NUM
+          constSpec ::= * identifier ASSIGNOP STR
+
+                            ID shift-reduce 2      identifier ::= ID
+                     constSpec shift        84     
+                    identifier shift        83     
+               constDeclRepeat shift-reduce 10     constDeclRepeat ::= constSpec SEMICOLON constDeclRepeat
+                     {default} reduce       11     constDeclRepeat ::=
+
+State 35:
+          identifier ::= * ID
+          constDecl ::= CONST LPAREN * constDeclRepeat RPAREN
+          constDeclRepeat ::= * constSpec SEMICOLON constDeclRepeat
+     (11) constDeclRepeat ::= *
+          constSpec ::= * identifier ASSIGNOP NUM
+          constSpec ::= * identifier ASSIGNOP STR
+
+                            ID shift-reduce 2      identifier ::= ID
+                     constSpec shift        84     
+                    identifier shift        83     
+               constDeclRepeat shift        85     
+                     {default} reduce       11     constDeclRepeat ::=
+
+State 36:
+          program ::= packageClause SEMICOLON * topLevelDecl SEMICOLON
+          topLevelDecl ::= * topConstDecl topVarDecl functionDecl
+          topConstDecl ::= * constDecl SEMICOLON
+      (5) topConstDecl ::= *
+          constDecl ::= * CONST constSpec
+          constDecl ::= * CONST LPAREN constDeclRepeat RPAREN
+
+                         CONST shift        40     
+                  topLevelDecl shift        89     
+                  topConstDecl shift        45     
+                     constDecl shift        62     
+                     {default} reduce       5      topConstDecl ::=
+
+State 37:
+          switchCase ::= CASE * constList
+          constList ::= * constant constListRepeat
+          constant ::= * ID
+          constant ::= * NUM
+
+                            ID shift-reduce 82     constant ::= ID
+                           NUM shift-reduce 83     constant ::= NUM
+                      constant shift        50     
+                     constList shift-reduce 77     switchCase ::= CASE constList
+
+State 38:
+          block ::= * LBRACE block2 block3 statementList RBRACE
+          ifStmt ::= * IF condition block
+          ifStmt ::= * IF condition block ELSE ifStmt
+          ifStmt ::= IF condition block ELSE * ifStmt
+          ifStmt ::= * IF condition block ELSE block
+          ifStmt ::= IF condition block ELSE * block
+
+                        LBRACE shift        44     
+                            IF shift        16     
+                         block shift-reduce 71     ifStmt ::= IF condition block ELSE block
+                        ifStmt shift-reduce 70     ifStmt ::= IF condition block ELSE ifStmt
+
+State 39:
+          identifier ::= * ID
+          varDecl ::= VAR * varSpec
+          varDecl ::= VAR * LPAREN varDeclRepeat RPAREN
+          varSpec ::= * identifier type
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        33     
+                       varSpec shift-reduce 14     varDecl ::= VAR varSpec
+                    identifier shift        31     
+
+State 40:
+          identifier ::= * ID
+          constDecl ::= CONST * constSpec
+          constDecl ::= CONST * LPAREN constDeclRepeat RPAREN
+          constSpec ::= * identifier ASSIGNOP NUM
+          constSpec ::= * identifier ASSIGNOP STR
+
+                            ID shift-reduce 2      identifier ::= ID
+                        LPAREN shift        35     
+                     constSpec shift-reduce 8      constDecl ::= CONST constSpec
+                    identifier shift        83     
+
+State 41:
+          identifier ::= * ID
+          variable ::= * identifier
+          variable ::= * identifier LSQUARE expression RSQUARE
+          readlnStmtRepeat ::= COMMA AMPERSAND * variable readlnStmtRepeat
+
+                            ID shift-reduce 2      identifier ::= ID
+                    identifier shift        68     
+                      variable shift        51     
+
+State 42:
+          identifier ::= * ID
+          variable ::= * identifier
+          variable ::= * identifier LSQUARE expression RSQUARE
+          readlnStmt ::= READLN LPAREN AMPERSAND * variable readlnStmtRepeat RPAREN
+
+                            ID shift-reduce 2      identifier ::= ID
+                    identifier shift        68     
+                      variable shift        52     
+
+State 43:
+          varDecl ::= * VAR varSpec
+          varDecl ::= * VAR LPAREN varDeclRepeat RPAREN
+          block ::= LBRACE block2 * block3 statementList RBRACE
+          block3 ::= * varDecl SEMICOLON
+     (28) block3 ::= *
+
+                           VAR shift        39     
+                       varDecl shift        65     
+                        block3 shift        2      
+                     {default} reduce       28     block3 ::=
+
+State 44:
+          constDecl ::= * CONST constSpec
+          constDecl ::= * CONST LPAREN constDeclRepeat RPAREN
+          block ::= LBRACE * block2 block3 statementList RBRACE
+          block2 ::= * constDecl SEMICOLON
+     (26) block2 ::= *
+
+                         CONST shift        40     
+                     constDecl shift        64     
+                        block2 shift        43     
+                     {default} reduce       26     block2 ::=
+
+State 45:
+          topLevelDecl ::= topConstDecl * topVarDecl functionDecl
+          topVarDecl ::= * varDecl SEMICOLON
+      (7) topVarDecl ::= *
+          varDecl ::= * VAR varSpec
+          varDecl ::= * VAR LPAREN varDeclRepeat RPAREN
+
+                           VAR shift        39     
+                       varDecl shift        63     
+                    topVarDecl shift        59     
+                     {default} reduce       7      topVarDecl ::=
+
+State 46:
+          constListRepeat ::= COMMA * constant constListRepeat
+          constant ::= * ID
+          constant ::= * NUM
+
+                            ID shift-reduce 82     constant ::= ID
+                           NUM shift-reduce 83     constant ::= NUM
+                      constant shift        49     
+
+State 47:
+          arrayType ::= LSQUARE * constant RSQUARE typeName
+          constant ::= * ID
+          constant ::= * NUM
+
+                            ID shift-reduce 82     constant ::= ID
+                           NUM shift-reduce 83     constant ::= NUM
+                      constant shift        80     
+
+State 48:
+          packageClause ::= PACKAGE * identifier
+          identifier ::= * ID
+
+                            ID shift-reduce 2      identifier ::= ID
+                    identifier shift-reduce 1      packageClause ::= PACKAGE identifier
+
+State 49:
+          constListRepeat ::= * COMMA constant constListRepeat
+          constListRepeat ::= COMMA constant * constListRepeat
+     (81) constListRepeat ::= *
+
+                         COMMA shift        46     
+               constListRepeat shift-reduce 80     constListRepeat ::= COMMA constant constListRepeat
+                     {default} reduce       81     constListRepeat ::=
+
+State 50:
+          constList ::= constant * constListRepeat
+          constListRepeat ::= * COMMA constant constListRepeat
+     (81) constListRepeat ::= *
+
+                         COMMA shift        46     
+               constListRepeat shift-reduce 79     constList ::= constant constListRepeat
+                     {default} reduce       81     constListRepeat ::=
+
+State 51:
+          readlnStmtRepeat ::= * COMMA AMPERSAND variable readlnStmtRepeat
+          readlnStmtRepeat ::= COMMA AMPERSAND variable * readlnStmtRepeat
+     (91) readlnStmtRepeat ::= *
+
+                         COMMA shift        66     
+              readlnStmtRepeat shift-reduce 90     readlnStmtRepeat ::= COMMA AMPERSAND variable readlnStmtRepeat
+                     {default} reduce       91     readlnStmtRepeat ::=
+
+State 52:
+          readlnStmt ::= READLN LPAREN AMPERSAND variable * readlnStmtRepeat RPAREN
+          readlnStmtRepeat ::= * COMMA AMPERSAND variable readlnStmtRepeat
+     (91) readlnStmtRepeat ::= *
+
+                         COMMA shift        66     
+              readlnStmtRepeat shift        67     
+                     {default} reduce       91     readlnStmtRepeat ::=
+
+State 53:
+          block ::= * LBRACE block2 block3 statementList RBRACE
+          forStmt ::= FOR condition * block
+
+                        LBRACE shift        44     
+                         block shift-reduce 85     forStmt ::= FOR condition block
+
+State 54:
+          block ::= * LBRACE block2 block3 statementList RBRACE
+          ifStmt ::= IF condition * block
+          ifStmt ::= IF condition * block ELSE ifStmt
+          ifStmt ::= IF condition * block ELSE block
+
+                        LBRACE shift        44     
+                         block shift        75     
+
+State 55:
+          assignmentStmt ::= variable * assignOp expression
+          assignOp ::= * ASSIGNOP
+
+                      ASSIGNOP shift-reduce 48     assignOp ::= ASSIGNOP
+                      assignOp shift        23     
+
+State 56:
+          arrayType ::= LSQUARE constant RSQUARE * typeName
+          typeName ::= * INT
+
+                           INT shift-reduce 22     typeName ::= INT
+                      typeName shift-reduce 21     arrayType ::= LSQUARE constant RSQUARE typeName
+
+State 57:
+          functionDecl ::= FUNC identifier LPAREN RPAREN * block
+          block ::= * LBRACE block2 block3 statementList RBRACE
+
+                        LBRACE shift        44     
+                         block shift-reduce 23     functionDecl ::= FUNC identifier LPAREN RPAREN block
+
+State 58:
+          identifier ::= * ID
+          functionDecl ::= FUNC * identifier LPAREN RPAREN block
+
+                            ID shift-reduce 2      identifier ::= ID
+                    identifier shift        87     
+
+State 59:
+          topLevelDecl ::= topConstDecl topVarDecl * functionDecl
+          functionDecl ::= * FUNC identifier LPAREN RPAREN block
+
+                          FUNC shift        58     
+                  functionDecl shift-reduce 3      topLevelDecl ::= topConstDecl topVarDecl functionDecl
+
+State 60:
+     (46) variable ::= identifier *
+          variable ::= identifier * LSQUARE expression RSQUARE
+          primaryExpr ::= identifier * LSQUARE expression RSQUARE
+     (65) primaryExpr ::= identifier *
+
+                      ASSIGNOP reduce       46     variable ::= identifier
+                       LSQUARE shift        22     
+                     {default} reduce       65     primaryExpr ::= identifier
+
+State 61:
+          constSpec ::= identifier ASSIGNOP * NUM
+          constSpec ::= identifier ASSIGNOP * STR
+
+                           NUM shift-reduce 12     constSpec ::= identifier ASSIGNOP NUM
+                           STR shift-reduce 13     constSpec ::= identifier ASSIGNOP STR
+
+State 62:
+          topConstDecl ::= constDecl * SEMICOLON
+
+                     SEMICOLON shift-reduce 4      topConstDecl ::= constDecl SEMICOLON
+
+State 63:
+          topVarDecl ::= varDecl * SEMICOLON
+
+                     SEMICOLON shift-reduce 6      topVarDecl ::= varDecl SEMICOLON
+
+State 64:
+          block2 ::= constDecl * SEMICOLON
+
+                     SEMICOLON shift-reduce 25     block2 ::= constDecl SEMICOLON
+
+State 65:
+          block3 ::= varDecl * SEMICOLON
+
+                     SEMICOLON shift-reduce 27     block3 ::= varDecl SEMICOLON
+
+State 66:
+          readlnStmtRepeat ::= COMMA * AMPERSAND variable readlnStmtRepeat
+
+                     AMPERSAND shift        41     
+
+State 67:
+          readlnStmt ::= READLN LPAREN AMPERSAND variable readlnStmtRepeat * RPAREN
+
+                        RPAREN shift-reduce 89     readlnStmt ::= READLN LPAREN AMPERSAND variable readlnStmtRepeat RPAREN
+
+State 68:
+     (46) variable ::= identifier *
+          variable ::= identifier * LSQUARE expression RSQUARE
+
+                       LSQUARE shift        18     
+                     {default} reduce       46     variable ::= identifier
+
+State 69:
+          readlnStmt ::= READLN LPAREN * AMPERSAND variable readlnStmtRepeat RPAREN
+
+                     AMPERSAND shift        42     
+
+State 70:
+          readlnStmt ::= READLN * LPAREN AMPERSAND variable readlnStmtRepeat RPAREN
+
+                        LPAREN shift        69     
+
+State 71:
+          printlnStmt ::= PRINTLN LPAREN expression printlnStmtRepeat * RPAREN
+
+                        RPAREN shift-reduce 86     printlnStmt ::= PRINTLN LPAREN expression printlnStmtRepeat RPAREN
+
+State 72:
+          printlnStmt ::= PRINTLN * LPAREN expression printlnStmtRepeat RPAREN
+
+                        LPAREN shift        20     
+
+State 73:
+          caseClause ::= switchCase * COLON statementList
+
+                         COLON shift        1      
+
+State 74:
+          switchStmt ::= SWITCH expression LBRACE switchStmtRepeat * RBRACE
+
+                        RBRACE shift-reduce 73     switchStmt ::= SWITCH expression LBRACE switchStmtRepeat RBRACE
+
+State 75:
+     (69) ifStmt ::= IF condition block *
+          ifStmt ::= IF condition block * ELSE ifStmt
+          ifStmt ::= IF condition block * ELSE block
+
+                          ELSE shift        38     
+                     {default} reduce       69     ifStmt ::= IF condition block
+
+State 76:
+     (47) variable ::= identifier LSQUARE expression RSQUARE *
+     (64) primaryExpr ::= identifier LSQUARE expression RSQUARE *
+
+                      ASSIGNOP reduce       47     variable ::= identifier LSQUARE expression RSQUARE
+                     {default} reduce       64     primaryExpr ::= identifier LSQUARE expression RSQUARE
+
+State 77:
+          primaryExpr ::= identifier * LSQUARE expression RSQUARE
+     (65) primaryExpr ::= identifier *
+
+                       LSQUARE shift        24     
+                     {default} reduce       65     primaryExpr ::= identifier
+
+State 78:
+          statementListRepeat ::= statement * SEMICOLON statementListRepeat
+
+                     SEMICOLON shift        3      
+
+State 79:
+          block ::= LBRACE block2 block3 statementList * RBRACE
+
+                        RBRACE shift-reduce 24     block ::= LBRACE block2 block3 statementList RBRACE
+
+State 80:
+          arrayType ::= LSQUARE constant * RSQUARE typeName
+
+                       RSQUARE shift        56     
+
+State 81:
+          varDeclRepeat ::= varSpec * SEMICOLON varDeclRepeat
+
+                     SEMICOLON shift        32     
+
+State 82:
+          varDecl ::= VAR LPAREN varDeclRepeat * RPAREN
+
+                        RPAREN shift-reduce 15     varDecl ::= VAR LPAREN varDeclRepeat RPAREN
+
+State 83:
+          constSpec ::= identifier * ASSIGNOP NUM
+          constSpec ::= identifier * ASSIGNOP STR
+
+                      ASSIGNOP shift        61     
+
+State 84:
+          constDeclRepeat ::= constSpec * SEMICOLON constDeclRepeat
+
+                     SEMICOLON shift        34     
+
+State 85:
+          constDecl ::= CONST LPAREN constDeclRepeat * RPAREN
+
+                        RPAREN shift-reduce 9      constDecl ::= CONST LPAREN constDeclRepeat RPAREN
+
+State 86:
+          functionDecl ::= FUNC identifier LPAREN * RPAREN block
+
+                        RPAREN shift        57     
+
+State 87:
+          functionDecl ::= FUNC identifier * LPAREN RPAREN block
+
+                        LPAREN shift        86     
+
+State 88:
+      (0) program ::= packageClause SEMICOLON topLevelDecl SEMICOLON *
+
+                             $ reduce       0      program ::= packageClause SEMICOLON topLevelDecl SEMICOLON
+
+State 89:
+          program ::= packageClause SEMICOLON topLevelDecl * SEMICOLON
+
+                     SEMICOLON shift        88     
+
+State 90:
+          program ::= packageClause * SEMICOLON topLevelDecl SEMICOLON
+
+                     SEMICOLON shift        36     
+
+----------------------------------------------------
+Symbols:
+The first-set of non-terminals is shown after the name.
+
+    0: $:
+    1: SEMICOLON
+    2: PACKAGE
+    3: ID
+    4: CONST
+    5: LPAREN
+    6: RPAREN
+    7: ASSIGNOP
+    8: NUM
+    9: STR
+   10: VAR
+   11: LSQUARE
+   12: RSQUARE
+   13: INT
+   14: FUNC
+   15: LBRACE
+   16: RBRACE
+   17: BINARYOP
+   18: RELOP
+   19: ADDOP
+   20: MULOP
+   21: UNARYOP
+   22: BREAK
+   23: CONTINUE
+   24: IF
+   25: ELSE
+   26: SWITCH
+   27: COLON
+   28: CASE
+   29: DEFAULT
+   30: COMMA
+   31: FOR
+   32: PRINTLN
+   33: READLN
+   34: AMPERSAND
+   35: constSpec: ID
+   36: varDecl: VAR
+   37: varSpec: ID
+   38: statement: <lambda> ID LPAREN NUM LBRACE UNARYOP BREAK CONTINUE IF SWITCH FOR PRINTLN READLN
+   39: varDeclRepeat: <lambda> ID
+   40: program: PACKAGE
+   41: packageClause: PACKAGE
+   42: topLevelDecl: CONST VAR FUNC
+   43: identifier: ID
+   44: topConstDecl: <lambda> CONST
+   45: topVarDecl: <lambda> VAR
+   46: functionDecl: FUNC
+   47: constDecl: CONST
+   48: constDeclRepeat: <lambda> ID
+   49: type: LSQUARE INT
+   50: typeName: INT
+   51: arrayType: LSQUARE
+   52: constant: ID NUM
+   53: block: LBRACE
+   54: block2: <lambda> CONST
+   55: block3: <lambda> VAR
+   56: statementList: <lambda> SEMICOLON ID LPAREN NUM LBRACE UNARYOP BREAK CONTINUE IF SWITCH FOR PRINTLN READLN
+   57: statementListRepeat: <lambda> SEMICOLON ID LPAREN NUM LBRACE UNARYOP BREAK CONTINUE IF SWITCH FOR PRINTLN READLN
+   58: simpleStmt: <lambda> ID LPAREN NUM UNARYOP
+   59: breakStmt: BREAK
+   60: continueStmt: CONTINUE
+   61: ifStmt: IF
+   62: switchStmt: SWITCH
+   63: forStmt: FOR
+   64: printlnStmt: PRINTLN
+   65: readlnStmt: READLN
+   66: emptyStmt: <lambda>
+   67: assignmentStmt: ID
+   68: expression: ID LPAREN NUM UNARYOP
+   69: variable: ID
+   70: assignOp: ASSIGNOP
+   71: unaryExpr: ID LPAREN NUM UNARYOP
+   72: opExpression: ID LPAREN NUM UNARYOP
+   73: binopExpression: ID LPAREN NUM BINARYOP RELOP ADDOP MULOP UNARYOP
+   74: relopExpression: ID LPAREN NUM RELOP ADDOP MULOP UNARYOP
+   75: addExpression: ID LPAREN NUM ADDOP MULOP UNARYOP
+   76: mulExpression: ID LPAREN NUM MULOP UNARYOP
+   77: unaryOp: UNARYOP
+   78: primaryExpr: ID LPAREN NUM
+   79: condition: ID LPAREN NUM UNARYOP
+   80: switchStmtRepeat: <lambda> CASE DEFAULT
+   81: caseClause: CASE DEFAULT
+   82: switchCase: CASE DEFAULT
+   83: constList: ID NUM
+   84: constListRepeat: <lambda> COMMA
+   85: printlnStmtRepeat: <lambda> COMMA
+   86: readlnStmtRepeat: <lambda> COMMA
+----------------------------------------------------
+Syntax-only Symbols:
+The following symbols never carry semantic content.
+
+$ SEMICOLON CONST LPAREN RPAREN VAR LSQUARE RSQUARE FUNC LBRACE RBRACE IF
+ELSE SWITCH COLON CASE DEFAULT COMMA FOR PRINTLN READLN AMPERSAND program
+----------------------------------------------------
+Rules:
+   0: program ::= packageClause SEMICOLON topLevelDecl SEMICOLON.
+   1: packageClause ::= PACKAGE identifier.
+   2: identifier ::= ID.
+   3: topLevelDecl ::= topConstDecl topVarDecl functionDecl.
+   4: topConstDecl ::= constDecl SEMICOLON.
+   5: topConstDecl ::=.
+   6: topVarDecl ::= varDecl SEMICOLON.
+   7: topVarDecl ::=.
+   8: constDecl ::= CONST constSpec.
+   9: constDecl ::= CONST LPAREN constDeclRepeat RPAREN.
+  10: constDeclRepeat ::= constSpec SEMICOLON constDeclRepeat.
+  11: constDeclRepeat ::=.
+  12: constSpec ::= identifier ASSIGNOP NUM.
+  13: constSpec ::= identifier ASSIGNOP STR.
+  14: varDecl ::= VAR varSpec.
+  15: varDecl ::= VAR LPAREN varDeclRepeat RPAREN.
+  16: varDeclRepeat ::= varSpec SEMICOLON varDeclRepeat.
+  17: varDeclRepeat ::=.
+  18: varSpec ::= identifier type.
+  19: type ::= typeName.
+  20: type ::= arrayType.
+  21: arrayType ::= LSQUARE constant RSQUARE typeName.
+  22: typeName ::= INT.
+  23: functionDecl ::= FUNC identifier LPAREN RPAREN block.
+  24: block ::= LBRACE block2 block3 statementList RBRACE.
+  25: block2 ::= constDecl SEMICOLON.
+  26: block2 ::=.
+  27: block3 ::= varDecl SEMICOLON.
+  28: block3 ::=.
+  29: statementList ::= statementListRepeat.
+  30: statementListRepeat ::= statement SEMICOLON statementListRepeat.
+  31: statementListRepeat ::=.
+  32: statement ::= simpleStmt.
+  33: statement ::= breakStmt.
+  34: statement ::= continueStmt.
+  35: statement ::= block.
+  36: statement ::= ifStmt.
+  37: statement ::= switchStmt.
+  38: statement ::= forStmt.
+  39: statement ::= printlnStmt.
+  40: statement ::= readlnStmt.
+  41: simpleStmt ::= emptyStmt.
+  42: simpleStmt ::= assignmentStmt.
+  43: simpleStmt ::= expression.
+  44: emptyStmt ::=.
+  45: assignmentStmt ::= variable assignOp expression.
+  46: variable ::= identifier.
+  47: variable ::= identifier LSQUARE expression RSQUARE.
+  48: assignOp ::= ASSIGNOP.
+  49: expression ::= unaryExpr.
+  50: expression ::= opExpression.
+  51: opExpression ::= expression binopExpression.
+  52: binopExpression ::= BINARYOP relopExpression.
+  53: binopExpression ::= relopExpression.
+  54: relopExpression ::= RELOP addExpression.
+  55: relopExpression ::= addExpression.
+  56: addExpression ::= ADDOP mulExpression.
+  57: addExpression ::= mulExpression.
+  58: mulExpression ::= MULOP unaryExpr.
+  59: mulExpression ::= unaryExpr.
+  60: unaryExpr ::= unaryOp unaryExpr.
+  61: unaryExpr ::= primaryExpr.
+  62: primaryExpr ::= NUM.
+  63: primaryExpr ::= LPAREN expression RPAREN.
+  64: primaryExpr ::= identifier LSQUARE expression RSQUARE.
+  65: primaryExpr ::= identifier.
+  66: unaryOp ::= UNARYOP.
+  67: breakStmt ::= BREAK.
+  68: continueStmt ::= CONTINUE.
+  69: ifStmt ::= IF condition block.
+  70: ifStmt ::= IF condition block ELSE ifStmt.
+  71: ifStmt ::= IF condition block ELSE block.
+  72: condition ::= expression.
+  73: switchStmt ::= SWITCH expression LBRACE switchStmtRepeat RBRACE.
+  74: switchStmtRepeat ::= caseClause switchStmtRepeat.
+  75: switchStmtRepeat ::=.
+  76: caseClause ::= switchCase COLON statementList.
+  77: switchCase ::= CASE constList.
+  78: switchCase ::= DEFAULT.
+  79: constList ::= constant constListRepeat.
+  80: constListRepeat ::= COMMA constant constListRepeat.
+  81: constListRepeat ::=.
+  82: constant ::= ID.
+  83: constant ::= NUM.
+  84: forStmt ::= FOR block.
+  85: forStmt ::= FOR condition block.
+  86: printlnStmt ::= PRINTLN LPAREN expression printlnStmtRepeat RPAREN.
+  87: printlnStmtRepeat ::= COMMA expression printlnStmtRepeat.
+  88: printlnStmtRepeat ::=.
+  89: readlnStmt ::= READLN LPAREN AMPERSAND variable readlnStmtRepeat RPAREN.
+  90: readlnStmtRepeat ::= COMMA AMPERSAND variable readlnStmtRepeat.
+  91: readlnStmtRepeat ::=.

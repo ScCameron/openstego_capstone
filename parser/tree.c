@@ -46,7 +46,8 @@ void traverseTree(int depth, treeNode *rootNode, void (*preOrder)(int, treeNode 
 }
 
 void destroyTreeNode(int depth, treeNode *node) {
-	free(node->value);
+	//free(node->value);
+	free(node->child);
 	free(node);
 }
 
