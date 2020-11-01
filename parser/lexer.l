@@ -14,7 +14,7 @@ assign_operator		("="|"+="|"-=")
 
 %top{
 /*
-	CMPT 399 assignment 1
+	CMPT 399 assignment 2
 	Author: Scott Cameron
 	
 	Description: Parse tokens from a text file to the MacEwan Go Spec
@@ -29,13 +29,8 @@ extern int yylval;
 // NOTE: some tokens such as LINE_COMMENT_START and BLOCK_COMMENT_END are 
 // only used in the intermediary getToken() function and should never be returned by getToken()
 typedef enum {
-//	T_ENDFILE, T_ERROR, PACKAGE, ID, FUNC, LPAREN, RPAREN, LBRACE, RBRACE, 
-//	PRINTLN, COMMA, NUM, BREAK, CASE, CONST, CONTINUE, DEFAULT, ELSE, FOR,
-//	IF, INT, READLN, SWITCH, VAR, STR, ADDOP, BINARYOP, RELOP, MULOP, ASSIGNOP,
-//	BLOCK_COMMENT_START, LINE_COMMENT_START, BLOCK_COMMENT_END, NEWLINE, 
-//	SEMICOLON, DOT, LSQUARE, RSQUARE, AMPERSAND, COLON,
-//	DUMMY_TOK
-
+	// this list of tokens matches the generated tokens in parser.h
+	// if the token enum is changed by modifying parser.y then this must be changed
 	T_ENDFILE,
 	SEMICOLON ,
 	PACKAGE   ,
@@ -81,14 +76,8 @@ typedef enum {
 
 } Token;
 
+// the string value of each token
 static char *TokenNames[] = {
-//	"T_ENDFILE", "ERROR", "PACKAGE", "ID", "FUNC", "LPAREN", "RPAREN", "LBRACE", "RBRACE",
-//    "PRINTLN", "COMMA", "NUM", "BREAK", "CASE", "CONST", "CONTINUE", "DEFAULT", "ELSE", "FOR",
-//    "IF", "INT", "READLN", "SWITCH", "VAR", "STR", "ADDOP", "BINARYOP", "RELOP", "MULOP", "ASSIGNOP",
-//    "BLOCK_COMMENT_START", "LINE_COMMENT_START", "BLOCK_COMMENT_END", "NEWLINE", 
-//	"SEMICOLON", "DOT", "LSQUARE", "RSQUARE", "AMPERSAND", "COLON",
-//	"DUMMY"
-
     "T_ENDFILE" ,
     "SEMICOLON" ,
     "PACKAGE"   ,
@@ -189,15 +178,13 @@ var							{return VAR;}
 // Get and return the next valid token
 int getToken() {
 	int tok;
-
 	int blockCommentFlag = 0; // 1 if you are in a block comment
-	//int lineCommentFlag = 0; // 1 if you are in a line comment
 	int restartFlag = 0; 	// used to run through the loop 1 extra time to catch back-to-back
 							// comments and newlines
 	
-	// check for multi-line and single-line comments and keep calling
+	// check for multi-line comments and keep calling
     // yyex() until you are no longer reading a comment
-	do{
+	do {
 		restartFlag = 0;
 		tok = yylex();
 
@@ -210,16 +197,10 @@ int getToken() {
 			blockCommentFlag = 0;
 			restartFlag = 1;
 		}
-		//if(!blockCommentFlag && lineCommentFlag && tok == NEWLINE){
-        //    lineCommentFlag = 0;
-		//	restartFlag = 1;
-		//}
 	
 		// check if you are initiating a comment
 		if(tok == BLOCK_COMMENT_START)
             blockCommentFlag = 1;
-		//if(!blockCommentFlag && tok == LINE_COMMENT_START)
-		//	lineCommentFlag = 1;
 
 	} while(blockCommentFlag || restartFlag);
 
@@ -228,8 +209,3 @@ int getToken() {
 		return T_ERROR;
 	return tok;
 }
-
-//char *getyylval() {
-//	return yylval;
-//}
-

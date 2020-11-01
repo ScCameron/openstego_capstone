@@ -5,7 +5,8 @@
 #used makefile from lab 4 as a template
 SHELL=/bin/bash
 CC=gcc
-CFLAGS=-std=c99 #-Wall
+CFLAGS=-std=c99 -Wall -Wno-unused-variable 	#some variables are only used outside of the file
+											#they are declared in
 LEX=flex
 LFLAGS=--header-file=$*.h
 TESTS=./mgo -vv tests/
@@ -40,4 +41,4 @@ tests: mgo
 	
 
 clean:
-	$(RM) *.o lexer.{c,h} parser.{c,h,o} lemon mgo || true 
+	$(RM) *.o lexer.{c,h} parser.{c,h,o,out} lemon mgo || true 
