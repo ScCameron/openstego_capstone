@@ -16,26 +16,8 @@
 %type varDeclRepeat {treeNode * }
 
 /*
-%left ID.
-%left NUM.
-%left AND.
-%left OR.
-%left ASSIGNOP.
-%left RELOP.
-%left BINARYOP.
-%left UNARYOP.
-%left ADDOP.
-%left MULOP.
-%left LPAREN.
-%left RPAREN.
-*/
-
-
-/*
- BINARYOP.
-binaryOp ::= RELOP.
-binaryOp ::= ADDOP.
-binaryOp ::= MULOP.
+Grammar of the MacEwan Go spec
+with constructed syntax tree.
 */
 
 program ::= packageClause(B) SEMICOLON topLevelDecl(C) SEMICOLON.	{
@@ -52,10 +34,10 @@ packageClause(A) ::= PACKAGE(B) identifier(C).	{
 }
 
 identifier(A) ::= ID(B).	{
-	A = B; //pass the ID string up
+	A = B;
 }
 
-topLevelDecl(A) ::= topConstDecl(B) topVarDecl(C) functionDecl(D).	{ 
+topLevelDecl(A) ::= topConstDecl(B) topVarDecl(C) functionDecl(D).	{
 	treeNode *topLevelNode = newNode("Top Level Decl", 3);
 	topLevelNode->child[0] = B;
 	topLevelNode->child[1] = C;
@@ -89,7 +71,7 @@ constDeclRepeat(A) ::= constSpec(B) SEMICOLON constDeclRepeat(C). {
 constDeclRepeat(A) ::= . {
 	A = NULL;
 }
-constSpec(A) ::= identifier(B) ASSIGNOP NUM(C). { /*unsure how to separate "=" from assignop*/
+constSpec(A) ::= identifier(B) ASSIGNOP NUM(C). {
 	treeNode *constNode = newNode("=", 2);
 	constNode->child[0] = newNode(B, 0);
 	constNode->child[1] = newNode(C, 0);
@@ -112,7 +94,7 @@ varDecl(A) ::= VAR LPAREN varDeclRepeat(B) RPAREN. {
 }
 varDeclRepeat(A) ::= varSpec(B) SEMICOLON varDeclRepeat(C). {
 	B->sibling = C;
-	A = B;	
+	A = B;
 }
 varDeclRepeat(A) ::= . {
 	A = NULL;
@@ -131,7 +113,7 @@ type(A) ::= arrayType(B). {
 	A = B;
 }
 
-arrayType(A) ::= LSQUARE constant(B) RSQUARE typeName(C). {	
+arrayType(A) ::= LSQUARE constant(B) RSQUARE typeName(C). {
 	treeNode *typeNode = newNode("Type", 2);
 	treeNode *constNode = newNode(B, 0);
 	typeNode->child[0] = constNode;
@@ -184,7 +166,7 @@ statementListRepeat(A) ::= . {
 }
 
 statement(A) ::= simpleStmt(B). { A = B; }
-statement(A) ::= breakStmt(B). { A = newNode(B, 0); }												
+statement(A) ::= breakStmt(B). { A = newNode(B, 0); }
 statement(A) ::= continueStmt(B). { A = newNode(B, 0); }
 statement(A) ::= block(B). { A = B; }
 statement(A) ::= ifStmt(B). { A = B; }
@@ -223,6 +205,11 @@ assignOp(A) ::= ASSIGNOP(B). { A = B; }
 expression(A) ::= unaryExpr(B). { A = B; }
 expression(A) ::= opExpression(B). { A = B; }
 
+
+
+/* to remove conflict with operators I laid an order of least to highest
+   precedence: binaryop, relop, addop, mulop
+*/
 %type binopExpression { treeNode * }
 opExpression(A) ::= expression(B) binopExpression(C). {
 	C->child[0] = B;
@@ -232,12 +219,7 @@ binopExpression(A) ::= BINARYOP(B) relopExpression(C). {
 	treeNode *binaryOpNode = newNode(B, 2);
 	binaryOpNode->child[1] = C;
 	A = binaryOpNode;
-}/*
-binopExpression(A) ::= BINARYOP(B) unaryExpr(C). {
-	treeNode *binaryOpNode = newNode(B, 2);
-	binaryOpNode->child[1] = C;
-	A = binaryOpNode;
-}*/
+}
 binopExpression(A) ::= relopExpression(B). { A = B; }
 
 
@@ -245,12 +227,7 @@ relopExpression(A) ::= RELOP(B) addExpression(C). {
 	treeNode *relOpNode = newNode(B, 2);
 	relOpNode->child[1] = C;
 	A = relOpNode;
-}/*
-relopExpression(A) ::= RELOP(B) unaryExpr(C). {
-	treeNode *relOpNode = newNode(B, 2);
-	relOpNode->child[1] = C;
-	A = relOpNode;
-}*/
+}
 relopExpression(A) ::= addExpression(B). { A = B; }
 
 
@@ -258,12 +235,7 @@ addExpression(A) ::= ADDOP(B) mulExpression(C). {
 	treeNode *addOpNode = newNode(B, 2);
 	addOpNode->child[1] = C;
 	A = addOpNode;
-}/*
-addExpression(A) ::= ADDOP(B) unaryExpr(C). {
-	treeNode *addOpNode = newNode(B, 2);
-	addOpNode->child[1] = C;
-	A = addOpNode;
-}*/
+}
 addExpression(A) ::= mulExpression(B). { A = B; }
 
 mulExpression(A) ::= MULOP(B) unaryExpr(C). {
@@ -273,16 +245,8 @@ mulExpression(A) ::= MULOP(B) unaryExpr(C). {
 }
 
 mulExpression(A) ::= unaryExpr(B). { A = B; }
-/*
-mulExpression(A) ::= identifier(B). {
-	treeNode *idNode = newNode(B, 0);
-	A = idNode;
-}
-mulExpression(A) ::= NUM(B). {
-	treeNode *idNode = newNode(B, 0);
-	A = idNode;
-}
-*/
+
+
 
 unaryExpr(A) ::= unaryOp(B) unaryExpr(C). {
 	treeNode *unaryExpNpde = newNode(B, 1);
@@ -315,25 +279,19 @@ primaryExpr(A) ::= identifier(B). {
 
 unaryOp(A) ::= UNARYOP(B). { A = B; }
 
-/*
-binaryOp(A) ::= BINARYOP(B). { A = B; }
-binaryOp(A) ::= RELOP(B). { A = B; }
-binaryOp(A) ::= ADDOP(B). { A = B; }
-binaryOp(A) ::= MULOP(B). { A = B; }
-*/
 breakStmt(A) ::= BREAK(B). { A = B; }
 continueStmt(A) ::= CONTINUE(B). { A = B; }
 
 
 ifStmt(A) ::= IF condition(B) block(C). {
-	treeNode *ifNode = newNode("IF", 3); //children are condition, block, else. else child is block or ifstmt
+	treeNode *ifNode = newNode("IF", 3);
 	ifNode->child[0] = B;
 	ifNode->child[1] = C;
 	ifNode->child[2] = NULL;
 	A = ifNode;
 }
 ifStmt(A) ::= IF condition(B) block(C) ELSE ifStmt(D). {
-	treeNode *ifNode = newNode("IF", 3); //children are condition, block, else. else child is block or ifstmt
+	treeNode *ifNode = newNode("IF", 3);
     ifNode->child[0] = B;
     ifNode->child[1] = C;
     treeNode *elseNode = newNode("Else", 1);
