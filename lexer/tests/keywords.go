@@ -1,0 +1,15 @@
+break
+case
+const
+continue
+default
+else
+for
+func
+if
+int
+package
+println
+readln
+switch
+var
