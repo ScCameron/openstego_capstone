@@ -1,0 +1,9 @@
+'This is a string.'
+
+'This
+is
+a
+multi
+line
+string
+'
