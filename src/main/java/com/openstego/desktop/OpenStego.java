@@ -25,6 +25,7 @@ import com.openstego.desktop.util.CommonUtil;
 import com.openstego.desktop.util.LabelUtil;
 import com.openstego.desktop.util.PluginManager;
 import com.openstego.desktop.util.UserPreferences;
+import com.openstego.desktop.plugin.aud.audEmbed;
 
 /**
  * This is the main class for OpenStego. It includes the {@link #main(String[])} method which provides the
@@ -103,7 +104,9 @@ public class OpenStego {
         if (!this.plugin.getPurposes().contains(OpenStegoPlugin.Purpose.DATA_HIDING)) {
             throw new OpenStegoException(null, OpenStego.NAMESPACE, OpenStegoException.PLUGIN_DOES_NOT_SUPPORT_DH);
         }
-
+        //test
+        audEmbed.printTest();
+        //test end
         try {
             // Compress data, if requested
             if (this.config.isUseCompression()) {
