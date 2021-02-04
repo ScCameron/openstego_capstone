@@ -16,16 +16,11 @@ import com.openstego.desktop.ui.OpenStegoUI;
 import com.openstego.desktop.ui.PluginEmbedOptionsUI;
 import com.openstego.desktop.util.LabelUtil;
 import com.openstego.desktop.util.cmd.CmdLineOptions;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -52,21 +47,25 @@ public class AudioPlugin extends OpenStegoPlugin {
     public static void printTest(){
         System.out.println("Hello world;");
     }
-        public static void TestAudEmbed(){
-    String testingPath = "C:\\Users\\patri\\Desktop\\StegoTesting";
-        String wav = testingPath + "\\sample.wav";
-        String mess = testingPath + "\\testText.txt";
+    public static void TestAudEmbed(){
+        
+        System.out.println("This may take a moment...");
+        String wav = "test_files\\sample.wav";
+        String mess = "test_files\\testText.txt";
         
         
-        byte[] messByte = new byte[1];
+        byte[] messByte; // current message byte
         // Get the bytes of our message
         try {
             Path path = Paths.get(mess);
             messByte = Files.readAllBytes(path);
         } catch(IOException e) {
+            e.printStackTrace(System.err);
+            return;
         }
-        int totalFramesRead = 0;
+        //int totalFramesRead = 0;
         int bytesPerFrame = 0;
+        int byteSpread = 2; // number of bytes between each insert. 1 generates strange noises
         File fileIn = new File(wav);
         // somePathName is a pre-existing string whose value was
         // based on a user selection.
@@ -79,86 +78,84 @@ public class AudioPlugin extends OpenStegoPlugin {
             bytesPerFrame = 1;
           } 
         } catch(IOException | UnsupportedAudioFileException e) {
+            e.printStackTrace(System.err);
         }
-          // Set an arbitrary buffer size of 1024 frames.
-          int numBytes = 1024 * bytesPerFrame; 
-          byte[] audioBytes = new byte[numBytes];
-          try {
-            int numBytesRead = 0;
-            int numFramesRead = 0;
+        // Set an arbitrary buffer size of 1024 frames.
+        int numBytes = 1024 * bytesPerFrame; 
+        byte[] audioBytes = new byte[numBytes];
+        try {
+            int numBytesRead;
+            int numFramesRead;
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(fileIn);
             // Try to read numBytes bytes from the file.
-            while ((numBytesRead = 
-                 audioInputStream.read(audioBytes)) != -1) {
+            while ((numBytesRead = audioInputStream.read(audioBytes)) != -1) {
                 // Calculate the number of frames actually read.
                 numFramesRead = numBytesRead / bytesPerFrame;
-                totalFramesRead += numFramesRead;
+                //totalFramesRead += numFramesRead;
               
-                if(numBytesRead < messByte.length*8 ){
+                // if the message can't fit into the cover file
+                if(Files.size(Paths.get(wav)) < messByte.length * 8 * byteSpread ){
+                    System.out.println(numBytesRead);
+                    System.out.println(messByte.length);
                     System.out.println("Message too long");
                     java.lang.System.exit(0);
                 }
-                    }               
+            }               
  
                 
-                        InputStream is = null;
-                        OutputStream os = null;
-                        File src = new File(testingPath+"\\sample.wav");
-                        File dest = new File(testingPath+"\\stegRes.wav");
-                        
-                            is = new FileInputStream(src);
-                            os = new FileOutputStream(dest);
+            InputStream is;
+            OutputStream os;
+            File src = new File("test_files\\sample.wav");
+            File dest = new File("test_files\\stegRes.wav");
 
-                            // buffer size 1K
-                            byte[] buf = new byte[1024];
+            is = new FileInputStream(src);
+            os = new FileOutputStream(dest);
 
-                            int bytesRead;
-                                while ((bytesRead = is.read(buf)) > 0) {
-                                    os.write(buf, 0, bytesRead);
-                                }
-                                is.close();
-                                os.close(); 
-                  
-                
-                
-                RandomAccessFile raf = new RandomAccessFile(testingPath+"\\stegRes.wav", "rw");
-                RandomAccessFile rafR = new RandomAccessFile(testingPath+"\\testText.txt", "rw");
-                int messInd = 0;
-                int targInd = 44;
-                byte b1, b2, b3, b4;
-                while(messInd < rafR.length()*8){
-                    b1 = (byte) 1; //0x0000001
-                    rafR.seek(messInd);
-                    messInd += 1;
-                    b2 = rafR.readByte();
-                    for(int i = 0; i <7; i++){
-                        b3 = (byte) (b2&b1);
-                        b1 = (byte) (b1 << 1);
-                        raf.seek(targInd);
-                        System.out.println("Before Mod");
-                        System.out.println(raf.readByte());
-                        raf.write(raf.readByte()|b3);
-                        System.out.println("After Mod");
-                        System.out.println(raf.readByte());
-                        targInd +=1;
-                        System.out.println("Byte");
-                        System.out.println(b3);
-                    } 
-                    System.out.println("Index");
-                        System.out.println(targInd); 
-                        System.out.println(messInd); 
-                         
-                }
+            // buffer size 1K
+            byte[] buf = new byte[1024];
 
-                  //raf.seek(targInd);
-                        
-                        //raf.write(70); // Write byte
-                        
-                
+            int bytesRead;
+            while ((bytesRead = is.read(buf)) > 0) {
+                os.write(buf, 0, bytesRead);
             }
-          catch(IOException | UnsupportedAudioFileException e) {
+            is.close();
+            os.close(); 
+
+            RandomAccessFile fromFile = new RandomAccessFile("test_files\\sample.wav", "r");
+            RandomAccessFile raf = new RandomAccessFile("test_files\\stegRes.wav", "rw");
+            RandomAccessFile rafR = new RandomAccessFile("test_files\\testText.txt", "r");
+
+            int messInd = 0;
+            // starting index passed header
+            int targInd = 94;
+            byte messageByte, insertBit;
+            // For every byte in the message
+            while(messInd < rafR.length()){
+                rafR.seek(messInd);
+                messInd += 1;
+                messageByte = rafR.readByte();
+                // For every bit in the message byte, insert it into the
+                // resulting file starting from the smallest bit and working to
+                // the largest
+                for(int i = 0; i <8; i++){
+                    // get the next bit of the message
+                    insertBit = (byte) (messageByte & (byte) 1); //0x00000001
+                    
+                    // prepate the massage byte to extract the next bit
+                    messageByte = (byte) (messageByte >> 1);
+                    
+                    raf.seek(targInd);
+                    fromFile.seek(targInd);
+                    
+                    // insert the first 7 bits of the original file + 1 bit of the message
+                    raf.write((fromFile.readByte() & (byte) 254) | insertBit);
+                    targInd +=byteSpread;
+                } 
+            }
         }
-    
+        catch(IOException | UnsupportedAudioFileException e) {
+            e.printStackTrace(System.err);
+        } 
     }
 
   
