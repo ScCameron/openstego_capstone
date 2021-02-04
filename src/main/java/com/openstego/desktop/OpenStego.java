@@ -106,6 +106,7 @@ public class OpenStego {
         }
         //test
         AudioPlugin.printTest();
+        AudioPlugin.TestAudEmbed();
         //test end
         try {
             // Compress data, if requested
@@ -430,6 +431,11 @@ public class OpenStego {
             PluginManager.loadPlugins();
             // Initialize preferences
             UserPreferences.init();
+            
+            
+            //delete
+            AudioPlugin.printTest();
+            AudioPlugin.TestAudEmbed();
 
             if (args.length == 0) { // Start GUI
                 try {
