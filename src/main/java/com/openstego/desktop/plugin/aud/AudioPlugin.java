@@ -16,10 +16,8 @@ import com.openstego.desktop.ui.OpenStegoUI;
 import com.openstego.desktop.ui.PluginEmbedOptionsUI;
 import com.openstego.desktop.util.LabelUtil;
 import com.openstego.desktop.util.cmd.CmdLineOptions;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 /**
  *
  * @author Patrick and Scott
@@ -156,6 +154,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return Correlation
      * @throws OpenStegoException
      */
+    @Override
     public double getWatermarkCorrelation(byte[] origSigData, byte[] watermarkData) throws OpenStegoException {
         return 0.0;
     }
@@ -166,6 +165,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return High watermark
      * @throws OpenStegoException
      */
+    @Override
     public double getHighWatermarkLevel() throws OpenStegoException {
         return 0.0;
     }
@@ -176,6 +176,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return Low watermark
      * @throws OpenStegoException
      */
+    @Override
     public double getLowWatermarkLevel() throws OpenStegoException {
         return 0.0;
     }
@@ -191,6 +192,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return Difference data
      * @throws OpenStegoException
      */
+    @Override
     public byte[] getDiff(byte[] stegoData, String stegoFileName, byte[] coverData, String coverFileName, String diffFileName) {
         // dummy code to fill the method
         byte[] b = new byte[1];
@@ -203,6 +205,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @param stegoData Stego data containing the message
      * @return Boolean indicating whether the stego data can be handled by this plugin or not
      */
+    @Override
     public boolean canHandle(byte[] stegoData) {
         // dummy code to fill the method
         return true;
@@ -214,6 +217,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return List of supported file extensions for reading
      * @throws OpenStegoException
      */
+    @Override
     public List<String> getReadableFileExtensions() throws OpenStegoException {
         // dummy code to fill the method
         List<String> dummy = new ArrayList<String>();
@@ -227,6 +231,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return List of supported file extensions for writing
      * @throws OpenStegoException
      */
+    @Override
     public List<String> getWritableFileExtensions() throws OpenStegoException {
         // dummy code to fill the method
         List<String> dummy = new ArrayList<String>();
@@ -242,6 +247,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @param options Existing command-line options. Plugin-specific options will get added to this list
      * @throws OpenStegoException
      */
+    @Override
     public void populateStdCmdLineOptions(CmdLineOptions options) throws OpenStegoException {
     }
 
@@ -251,6 +257,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return Usage details of the plugin
      * @throws OpenStegoException
      */
+    @Override
     public String getUsage() throws OpenStegoException {
         return "dummy usage message";
     }
@@ -265,6 +272,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return UI object specific to this plugin for "Embed" action
      * @throws OpenStegoException
      */
+    @Override
     public PluginEmbedOptionsUI getEmbedOptionsUI(OpenStegoUI stegoUI) throws OpenStegoException {
          // dummy code to fill the method
         return new LSBEmbedOptionsUI(stegoUI);
@@ -277,6 +285,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      *
      * @return Configuration class specific to this plugin
      */
+    @Override
     public Class<? extends OpenStegoConfig> getConfigClass() {
         // dummy code to fill the method
         return LSBConfig.class;
