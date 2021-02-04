@@ -106,6 +106,7 @@ public class OpenStego {
         }
         //test
         AudioPlugin.printTest();
+        AudioPlugin.TestAudEmbed();
         //test end
         try {
             // Compress data, if requested

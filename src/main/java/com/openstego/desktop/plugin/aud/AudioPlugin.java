@@ -20,6 +20,18 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.util.List;
+import java.util.ArrayList;
+
 /**
  *
  * @author Patrick and Scott
@@ -40,7 +52,116 @@ public class AudioPlugin extends OpenStegoPlugin {
     public static void printTest(){
         System.out.println("Hello world;");
     }
+        public static void TestAudEmbed(){
+    String testingPath = "C:\\Users\\patri\\Desktop\\StegoTesting";
+        String wav = testingPath + "\\sample.wav";
+        String mess = testingPath + "\\testText.txt";
+        
+        
+        byte[] messByte = new byte[1];
+        // Get the bytes of our message
+        try {
+            Path path = Paths.get(mess);
+            messByte = Files.readAllBytes(path);
+        } catch(IOException e) {
+        }
+        int totalFramesRead = 0;
+        int bytesPerFrame = 0;
+        File fileIn = new File(wav);
+        // somePathName is a pre-existing string whose value was
+        // based on a user selection.
+        try {
+          AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(fileIn);
+            bytesPerFrame = audioInputStream.getFormat().getFrameSize();
+            if (bytesPerFrame == AudioSystem.NOT_SPECIFIED) {
+            // some audio formats may have unspecified frame size
+            // in that case we may read any amount of bytes
+            bytesPerFrame = 1;
+          } 
+        } catch(IOException | UnsupportedAudioFileException e) {
+        }
+          // Set an arbitrary buffer size of 1024 frames.
+          int numBytes = 1024 * bytesPerFrame; 
+          byte[] audioBytes = new byte[numBytes];
+          try {
+            int numBytesRead = 0;
+            int numFramesRead = 0;
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(fileIn);
+            // Try to read numBytes bytes from the file.
+            while ((numBytesRead = 
+                 audioInputStream.read(audioBytes)) != -1) {
+                // Calculate the number of frames actually read.
+                numFramesRead = numBytesRead / bytesPerFrame;
+                totalFramesRead += numFramesRead;
+              
+                if(numBytesRead < messByte.length*8 ){
+                    System.out.println("Message too long");
+                    java.lang.System.exit(0);
+                }
+                    }               
+ 
+                
+                        InputStream is = null;
+                        OutputStream os = null;
+                        File src = new File(testingPath+"\\sample.wav");
+                        File dest = new File(testingPath+"\\stegRes.wav");
+                        
+                            is = new FileInputStream(src);
+                            os = new FileOutputStream(dest);
+
+                            // buffer size 1K
+                            byte[] buf = new byte[1024];
+
+                            int bytesRead;
+                                while ((bytesRead = is.read(buf)) > 0) {
+                                    os.write(buf, 0, bytesRead);
+                                }
+                                is.close();
+                                os.close(); 
+                  
+                
+                
+                RandomAccessFile raf = new RandomAccessFile(testingPath+"\\stegRes.wav", "rw");
+                RandomAccessFile rafR = new RandomAccessFile(testingPath+"\\testText.txt", "rw");
+                int messInd = 0;
+                int targInd = 44;
+                byte b1, b2, b3, b4;
+                while(messInd < rafR.length()*8){
+                    b1 = (byte) 1; //0x0000001
+                    rafR.seek(messInd);
+                    messInd += 1;
+                    b2 = rafR.readByte();
+                    for(int i = 0; i <7; i++){
+                        b3 = (byte) (b2&b1);
+                        b1 = (byte) (b1 << 1);
+                        raf.seek(targInd);
+                        System.out.println("Before Mod");
+                        System.out.println(raf.readByte());
+                        raf.write(raf.readByte()|b3);
+                        System.out.println("After Mod");
+                        System.out.println(raf.readByte());
+                        targInd +=1;
+                        System.out.println("Byte");
+                        System.out.println(b3);
+                    } 
+                    System.out.println("Index");
+                        System.out.println(targInd); 
+                        System.out.println(messInd); 
+                         
+                }
+
+                  //raf.seek(targInd);
+                        
+                        //raf.write(70); // Write byte
+                        
+                
+            }
+          catch(IOException | UnsupportedAudioFileException e) {
+        }
     
+    }
+
+  
     /**
      * Default constructor
      */
@@ -99,8 +220,13 @@ public class AudioPlugin extends OpenStegoPlugin {
     @Override
     public byte[] embedData(byte[] msg, String msgFileName, byte[] cover, String coverFileName, String stegoFileName) {
         // dummy code to fill the method
+        
+        
+
+            
         byte[] b = new byte[1];
         return b;
+
     }
 
     /**
@@ -146,6 +272,7 @@ public class AudioPlugin extends OpenStegoPlugin {
         byte[] b = new byte[1];
         return b;
     }
+
 
 
     /**
@@ -256,7 +383,7 @@ public class AudioPlugin extends OpenStegoPlugin {
     }
 
     // ------------- GUI Related Methods -------------
-
+    
     /**
      * Method to get the UI object for "Embed" action specific to this plugin. This UI object will be embedded inside
      * the main OpenStego GUI
@@ -281,6 +408,5 @@ public class AudioPlugin extends OpenStegoPlugin {
         // dummy code to fill the method
         return LSBConfig.class;
     }
-
 
 }
