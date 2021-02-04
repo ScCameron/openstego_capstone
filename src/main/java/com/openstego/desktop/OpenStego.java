@@ -431,6 +431,11 @@ public class OpenStego {
             PluginManager.loadPlugins();
             // Initialize preferences
             UserPreferences.init();
+            
+            
+            //delete
+            AudioPlugin.printTest();
+            AudioPlugin.TestAudEmbed();
 
             if (args.length == 0) { // Start GUI
                 try {
