@@ -16,6 +16,7 @@ import com.openstego.desktop.ui.OpenStegoUI;
 import com.openstego.desktop.ui.PluginEmbedOptionsUI;
 import com.openstego.desktop.util.LabelUtil;
 import com.openstego.desktop.util.cmd.CmdLineOptions;
+import com.openstego.desktop.OpenStegoCrypto;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -26,6 +27,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -52,7 +55,8 @@ public class AudioPlugin extends OpenStegoPlugin {
         System.out.println("This may take a moment...");
         String wav = "test_files\\sample.wav";
         String mess = "test_files\\testText.txt";
-        
+        //Encryption testing
+        Boolean encryptMess = false;
         
         byte[] messByte; // current message byte
         // Get the bytes of our message
@@ -85,7 +89,7 @@ public class AudioPlugin extends OpenStegoPlugin {
         byte[] audioBytes = new byte[numBytes];
         try {
             int numBytesRead;
-            int numFramesRead;
+            int numFramesRead;  
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(fileIn);
             // Try to read numBytes bytes from the file.
             while ((numBytesRead = audioInputStream.read(audioBytes)) != -1) {
@@ -129,6 +133,45 @@ public class AudioPlugin extends OpenStegoPlugin {
             // starting index passed header
             int targInd = 94;
             byte messageByte, insertBit;
+
+            /*Some encryption stuff*/
+            if(encryptMess){
+                byte [] storeMess = new byte[(int) rafR.length()];
+                try {
+                    //Get the encrypted bytes
+                    OpenStegoCrypto crypt = new OpenStegoCrypto("pass", "");
+                    byte[] encrypted = crypt.encrypt(storeMess);
+                    //Store them in a file
+                    OutputStream out;
+                    File crypFile = new File("test_files\\encryptedMess");
+                    out = new FileOutputStream(crypFile);
+                    out.write(encrypted);
+                    out.close();
+                    
+                    rafR = new RandomAccessFile("test_files\\encryptedMess", "r");
+                    
+                } catch (OpenStegoException ex) {
+                    Logger.getLogger(AudioPlugin.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            
+            /*Insert the message length*/
+            int data = (int) rafR.length();
+            //Store the length in a byte array
+            byte[] messLenArray ={
+                (byte)((data >> 24) & 0xff),
+                (byte)((data >> 16) & 0xff),
+                (byte)((data >> 8) & 0xff),
+                (byte)((data >> 0) & 0xff),
+            };
+            //Copy each byte of the integer into the file
+            for(int j = 0; j < 4; j++){
+                raf.seek(targInd);
+                raf.write(messLenArray[j]);
+                targInd++;
+            }
+            
+
             // For every byte in the message
             while(messInd < rafR.length()){
                 rafR.seek(messInd);
