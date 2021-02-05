@@ -164,13 +164,16 @@ public class AudioPlugin extends OpenStegoPlugin {
                 (byte)((data >> 8) & 0xff),
                 (byte)((data >> 0) & 0xff),
             };
+            
+            // this needs to be bit by bit, not entire bytes
+            
             //Copy each byte of the integer into the file
-            for(int j = 0; j < 4; j++){
+            /*for(int j = 0; j < 4; j++){
                 raf.seek(targInd);
                 raf.write(messLenArray[j]);
                 targInd++;
             }
-            
+            */
 
             // For every byte in the message
             while(messInd < rafR.length()){
@@ -199,6 +202,48 @@ public class AudioPlugin extends OpenStegoPlugin {
         catch(IOException | UnsupportedAudioFileException e) {
             e.printStackTrace(System.err);
         } 
+        TestAudExtract();
+    }
+    
+    public static void TestAudExtract(){
+        int byteSpread = 2;
+        int messInd = 0;
+        // starting index passed header
+        int targInd = 94;
+        byte extractedByte, messageByte, tempByte;
+        
+        try{
+            RandomAccessFile coverFile = new RandomAccessFile("test_files\\stegRes.wav", "rw");
+            
+            while(messInd < 12){ // temp value
+                coverFile.seek(targInd);
+                messageByte = 0; // 0x00000000
+                
+                // reconstruct 1 message byte out of 8 cover file bytes
+                for(int i = 0; i <8; i++){
+                    extractedByte = coverFile.readByte();
+                    tempByte = (byte) (extractedByte & (byte) 1);
+                    tempByte = (byte) (tempByte << i);
+                    messageByte = (byte) (tempByte | messageByte);
+                    //System.out.println(tempByte);
+                    
+                    
+                    
+                    targInd += byteSpread;
+                    coverFile.seek(targInd);
+                }
+                messInd++;
+                System.out.println((char) messageByte);
+            }
+            
+            
+            
+            
+        }
+        catch(IOException e){
+            e.printStackTrace(System.err);
+        }
+        
     }
 
   
