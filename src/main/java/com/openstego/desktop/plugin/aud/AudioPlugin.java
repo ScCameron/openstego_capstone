@@ -165,15 +165,17 @@ public class AudioPlugin extends OpenStegoPlugin {
                 (byte)((data >> 0) & 0xff),
             };
             
-            // this needs to be bit by bit, not entire bytes
-            
-            //Copy each byte of the integer into the file
-            /*for(int j = 0; j < 4; j++){
-                raf.seek(targInd);
-                raf.write(messLenArray[j]);
-                targInd++;
+            //Copy each byte of the message size into the file bit by bit
+            for(int j = 0; j < 4; j++){ // fixed 4 bytes for message size
+                for(int k = 0; k < 8; k++){
+                    raf.seek(targInd);
+                    insertBit = (byte) (messLenArray[j] & (byte) 1);
+                    raf.write(insertBit);
+                    messLenArray[j] = (byte) (messLenArray[j] >> 1);
+                    targInd += byteSpread;
+                }
             }
-            */
+            
 
             // For every byte in the message
             while(messInd < rafR.length()){
@@ -214,8 +216,28 @@ public class AudioPlugin extends OpenStegoPlugin {
         
         try{
             RandomAccessFile coverFile = new RandomAccessFile("test_files\\stegRes.wav", "rw");
+            RandomAccessFile messageOutput = new RandomAccessFile("test_files\\messageOutput.txt", "rw");
             
-            while(messInd < 12){ // temp value
+            int size = 0;
+            byte sizeByte = 0;
+            // get the size of the message
+            for(int j = 3; j >=0; j--){
+                for(int k = 0; k <8; k++){
+                    coverFile.seek(targInd);
+                    extractedByte = coverFile.readByte();
+                    tempByte = (byte) (extractedByte & (byte) 1);
+                    tempByte = (byte) (tempByte << k);
+                    sizeByte = (byte) (tempByte | sizeByte);
+                    targInd += byteSpread;
+                }
+                size += (1 << j) * sizeByte;
+                messInd++;
+            }
+            
+            messInd = 0;
+            while(messInd < size){
+                messageOutput.seek(messInd);
+                
                 coverFile.seek(targInd);
                 messageByte = 0; // 0x00000000
                 
@@ -225,20 +247,14 @@ public class AudioPlugin extends OpenStegoPlugin {
                     tempByte = (byte) (extractedByte & (byte) 1);
                     tempByte = (byte) (tempByte << i);
                     messageByte = (byte) (tempByte | messageByte);
-                    //System.out.println(tempByte);
-                    
-                    
                     
                     targInd += byteSpread;
                     coverFile.seek(targInd);
                 }
+                messageOutput.write(messageByte);
                 messInd++;
-                System.out.println((char) messageByte);
             }
-            
-            
-            
-            
+
         }
         catch(IOException e){
             e.printStackTrace(System.err);
