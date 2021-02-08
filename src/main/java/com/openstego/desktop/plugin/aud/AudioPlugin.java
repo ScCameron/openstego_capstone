@@ -164,14 +164,17 @@ public class AudioPlugin extends OpenStegoPlugin {
                 (byte)((data >> 8) & 0xff),
                 (byte)((data >> 0) & 0xff),
             };
-            //Copy each byte of the integer into the file bit by bit
-            for(int j = 0; j < 4; j++){
+    
+            //Copy each byte of the message size into the file bit by bit
+            for(int j = 0; j < 4; j++){ // fixed 4 bytes for message size
+
                 for(int k = 0; k < 8; k++){
                     raf.seek(targInd);
                     insertBit = (byte) (messLenArray[j] & (byte) 1);
                     raf.write(insertBit);
                     messLenArray[j] = (byte) (messLenArray[j] >> 1);
-                    targInd += 2;
+                    targInd += byteSpread;
+
                 }
             }
             
@@ -203,6 +206,62 @@ public class AudioPlugin extends OpenStegoPlugin {
         catch(IOException | UnsupportedAudioFileException e) {
             e.printStackTrace(System.err);
         } 
+        TestAudExtract();
+    }
+    
+    public static void TestAudExtract(){
+        int byteSpread = 2;
+        int messInd = 0;
+        // starting index passed header
+        int targInd = 94;
+        byte extractedByte, messageByte, tempByte;
+        
+        try{
+            RandomAccessFile coverFile = new RandomAccessFile("test_files\\stegRes.wav", "rw");
+            RandomAccessFile messageOutput = new RandomAccessFile("test_files\\messageOutput.txt", "rw");
+            
+            int size = 0;
+            byte sizeByte = 0;
+            // get the size of the message
+            for(int j = 3; j >=0; j--){
+                for(int k = 0; k <8; k++){
+                    coverFile.seek(targInd);
+                    extractedByte = coverFile.readByte();
+                    tempByte = (byte) (extractedByte & (byte) 1);
+                    tempByte = (byte) (tempByte << k);
+                    sizeByte = (byte) (tempByte | sizeByte);
+                    targInd += byteSpread;
+                }
+                size += (1 << j) * sizeByte;
+                messInd++;
+            }
+            
+            messInd = 0;
+            while(messInd < size){
+                messageOutput.seek(messInd);
+                
+                coverFile.seek(targInd);
+                messageByte = 0; // 0x00000000
+                
+                // reconstruct 1 message byte out of 8 cover file bytes
+                for(int i = 0; i <8; i++){
+                    extractedByte = coverFile.readByte();
+                    tempByte = (byte) (extractedByte & (byte) 1);
+                    tempByte = (byte) (tempByte << i);
+                    messageByte = (byte) (tempByte | messageByte);
+                    
+                    targInd += byteSpread;
+                    coverFile.seek(targInd);
+                }
+                messageOutput.write(messageByte);
+                messInd++;
+            }
+
+        }
+        catch(IOException e){
+            e.printStackTrace(System.err);
+        }
+        
     }
 
   
