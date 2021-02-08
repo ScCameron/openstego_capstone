@@ -164,15 +164,17 @@ public class AudioPlugin extends OpenStegoPlugin {
                 (byte)((data >> 8) & 0xff),
                 (byte)((data >> 0) & 0xff),
             };
-            
+    
             //Copy each byte of the message size into the file bit by bit
             for(int j = 0; j < 4; j++){ // fixed 4 bytes for message size
+
                 for(int k = 0; k < 8; k++){
                     raf.seek(targInd);
                     insertBit = (byte) (messLenArray[j] & (byte) 1);
                     raf.write(insertBit);
                     messLenArray[j] = (byte) (messLenArray[j] >> 1);
                     targInd += byteSpread;
+
                 }
             }
             
