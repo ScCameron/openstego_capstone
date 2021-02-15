@@ -16,19 +16,10 @@ import com.openstego.desktop.ui.OpenStegoUI;
 import com.openstego.desktop.ui.PluginEmbedOptionsUI;
 import com.openstego.desktop.util.LabelUtil;
 import com.openstego.desktop.util.cmd.CmdLineOptions;
-import com.openstego.desktop.OpenStegoCrypto;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  *
@@ -39,232 +30,15 @@ public class AudioPlugin extends OpenStegoPlugin {
      * Constant for Namespace to use for this plugin
      */
     public final static String NAMESPACE = "AudioLSB";
+    int byteSpread = 2; // number of bytes between each insert. 1 generates strange noises
+    int targInd = 112; // the byte start point of the message in the cover file
+    
     
     /**
      * LabelUtil instance to retrieve labels
      */
-    private static LabelUtil labelUtil = LabelUtil.getInstance(NAMESPACE);
+    private final static LabelUtil labelUtil = LabelUtil.getInstance(NAMESPACE);
     
-    
-    // test, remove
-    public static void printTest(){
-        System.out.println("Hello world;");
-    }
-    public static void TestAudEmbed(){
-        
-        System.out.println("This may take a moment...");
-        String wav = "test_files\\sample.wav";
-        String mess = "test_files\\testText.txt";
-        //Encryption testing
-        Boolean encryptMess = false;
-        
-        byte[] messByte; // current message byte
-        // Get the bytes of our message
-        try {
-            Path path = Paths.get(mess);
-            messByte = Files.readAllBytes(path);
-        } catch(IOException e) {
-            e.printStackTrace(System.err);
-            return;
-        }
-        //int totalFramesRead = 0;
-        int bytesPerFrame = 0;
-        int byteSpread = 2; // number of bytes between each insert. 1 generates strange noises
-        File fileIn = new File(wav);
-        // somePathName is a pre-existing string whose value was
-        // based on a user selection.
-        try {
-          AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(fileIn);
-            bytesPerFrame = audioInputStream.getFormat().getFrameSize();
-            if (bytesPerFrame == AudioSystem.NOT_SPECIFIED) {
-            // some audio formats may have unspecified frame size
-            // in that case we may read any amount of bytes
-            bytesPerFrame = 1;
-          } 
-        } catch(IOException | UnsupportedAudioFileException e) {
-            e.printStackTrace(System.err);
-        }
-        // Set an arbitrary buffer size of 1024 frames.
-        int numBytes = 1024 * bytesPerFrame; 
-        byte[] audioBytes = new byte[numBytes];
-        try {
-            int numBytesRead;
-            int numFramesRead;  
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(fileIn);
-            // Try to read numBytes bytes from the file.
-            while ((numBytesRead = audioInputStream.read(audioBytes)) != -1) {
-                // Calculate the number of frames actually read.
-                numFramesRead = numBytesRead / bytesPerFrame;
-                //totalFramesRead += numFramesRead;
-              
-                // if the message can't fit into the cover file
-                if(Files.size(Paths.get(wav)) < messByte.length * 8 * byteSpread ){
-                    System.out.println(numBytesRead);
-                    System.out.println(messByte.length);
-                    System.out.println("Message too long");
-                    java.lang.System.exit(0);
-                }
-            }               
- 
-                
-            InputStream is;
-            OutputStream os;
-            File src = new File("test_files\\sample.wav");
-            File dest = new File("test_files\\stegRes.wav");
-
-            is = new FileInputStream(src);
-            os = new FileOutputStream(dest);
-
-            // buffer size 1K
-            byte[] buf = new byte[1024];
-
-            int bytesRead;
-            while ((bytesRead = is.read(buf)) > 0) {
-                os.write(buf, 0, bytesRead);
-            }
-            is.close();
-            os.close(); 
-
-            RandomAccessFile fromFile = new RandomAccessFile("test_files\\sample.wav", "r");
-            RandomAccessFile raf = new RandomAccessFile("test_files\\stegRes.wav", "rw");
-            RandomAccessFile rafR = new RandomAccessFile("test_files\\testText.txt", "r");
-
-            int messInd = 0;
-            // starting index passed header
-            int targInd = 94;
-            byte messageByte, insertBit;
-
-            /*Some encryption stuff*/
-            if(encryptMess){
-                byte [] storeMess = new byte[(int) rafR.length()];
-                try {
-                    //Get the encrypted bytes
-                    OpenStegoCrypto crypt = new OpenStegoCrypto("pass", "");
-                    byte[] encrypted = crypt.encrypt(storeMess);
-                    //Store them in a file
-                    OutputStream out;
-                    File crypFile = new File("test_files\\encryptedMess");
-                    out = new FileOutputStream(crypFile);
-                    out.write(encrypted);
-                    out.close();
-                    
-                    rafR = new RandomAccessFile("test_files\\encryptedMess", "r");
-                    
-                } catch (OpenStegoException ex) {
-                    Logger.getLogger(AudioPlugin.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            
-            /*Insert the message length*/
-            int data = (int) rafR.length();
-            //Store the length in a byte array
-            byte[] messLenArray ={
-                (byte)((data >> 24) & 0xff),
-                (byte)((data >> 16) & 0xff),
-                (byte)((data >> 8) & 0xff),
-                (byte)((data >> 0) & 0xff),
-            };
-    
-            //Copy each byte of the message size into the file bit by bit
-            for(int j = 0; j < 4; j++){ // fixed 4 bytes for message size
-
-                for(int k = 0; k < 8; k++){
-                    raf.seek(targInd);
-                    insertBit = (byte) (messLenArray[j] & (byte) 1);
-                    raf.write(insertBit);
-                    messLenArray[j] = (byte) (messLenArray[j] >> 1);
-                    targInd += byteSpread;
-
-                }
-            }
-            
-
-            // For every byte in the message
-            while(messInd < rafR.length()){
-                rafR.seek(messInd);
-                messInd += 1;
-                messageByte = rafR.readByte();
-                // For every bit in the message byte, insert it into the
-                // resulting file starting from the smallest bit and working to
-                // the largest
-                for(int i = 0; i <8; i++){
-                    // get the next bit of the message
-                    insertBit = (byte) (messageByte & (byte) 1); //0x00000001
-                    
-                    // prepate the massage byte to extract the next bit
-                    messageByte = (byte) (messageByte >> 1);
-                    
-                    raf.seek(targInd);
-                    fromFile.seek(targInd);
-                    
-                    // insert the first 7 bits of the original file + 1 bit of the message
-                    raf.write((fromFile.readByte() & (byte) 254) | insertBit);
-                    targInd +=byteSpread;
-                } 
-            }
-        }
-        catch(IOException | UnsupportedAudioFileException e) {
-            e.printStackTrace(System.err);
-        } 
-        TestAudExtract();
-    }
-    
-    public static void TestAudExtract(){
-        int byteSpread = 2;
-        int messInd = 0;
-        // starting index passed header
-        int targInd = 94;
-        byte extractedByte, messageByte, tempByte;
-        
-        try{
-            RandomAccessFile coverFile = new RandomAccessFile("test_files\\stegRes.wav", "rw");
-            RandomAccessFile messageOutput = new RandomAccessFile("test_files\\messageOutput.txt", "rw");
-            
-            int size = 0;
-            byte sizeByte = 0;
-            // get the size of the message
-            for(int j = 3; j >=0; j--){
-                for(int k = 0; k <8; k++){
-                    coverFile.seek(targInd);
-                    extractedByte = coverFile.readByte();
-                    tempByte = (byte) (extractedByte & (byte) 1);
-                    tempByte = (byte) (tempByte << k);
-                    sizeByte = (byte) (tempByte | sizeByte);
-                    targInd += byteSpread;
-                }
-                size += (1 << j) * sizeByte;
-                messInd++;
-            }
-            
-            messInd = 0;
-            while(messInd < size){
-                messageOutput.seek(messInd);
-                
-                coverFile.seek(targInd);
-                messageByte = 0; // 0x00000000
-                
-                // reconstruct 1 message byte out of 8 cover file bytes
-                for(int i = 0; i <8; i++){
-                    extractedByte = coverFile.readByte();
-                    tempByte = (byte) (extractedByte & (byte) 1);
-                    tempByte = (byte) (tempByte << i);
-                    messageByte = (byte) (tempByte | messageByte);
-                    
-                    targInd += byteSpread;
-                    coverFile.seek(targInd);
-                }
-                messageOutput.write(messageByte);
-                messInd++;
-            }
-
-        }
-        catch(IOException e){
-            e.printStackTrace(System.err);
-        }
-        
-    }
-
-  
     /**
      * Default constructor
      */
@@ -322,14 +96,57 @@ public class AudioPlugin extends OpenStegoPlugin {
      */
     @Override
     public byte[] embedData(byte[] msg, String msgFileName, byte[] cover, String coverFileName, String stegoFileName) {
-        // dummy code to fill the method
-        
-        
+        int messInd = 0;
 
-            
-        byte[] b = new byte[1];
-        return b;
+        if(cover.length < msg.length  * 8 * byteSpread ){
+            System.out.println("Message too long");
+            java.lang.System.exit(0);
+        }
+        byte messageByte, insertBit;
 
+        /*Insert the message length*/
+        long data = msg.length;
+        System.out.println(msg.length);
+        //Store the length in a byte array
+        byte[] messLenArray ={
+            (byte)((data >> 24) & 0xff),
+            (byte)((data >> 16) & 0xff),
+            (byte)((data >> 8) & 0xff),
+            (byte)(data & 0xff),
+        };
+
+        //Copy each byte of the message size into the file bit by bit
+        for(int j = 0; j < 4; j++){ // fixed 4 bytes for message size
+            for(int k = 0; k < 8; k++){
+                insertBit = (byte) (messLenArray[j] & (byte) 1);
+                cover[targInd] = (byte) ((cover[targInd] & 254) | insertBit);
+                messLenArray[j] = (byte) (messLenArray[j] >> 1);
+                targInd += byteSpread;
+            }
+        }
+
+        // For every byte in the message
+        while(messInd < msg.length){
+            //rafR.seek(messInd);
+            messageByte = msg[messInd];
+            messInd++;
+
+            // For every bit in the message byte, insert it into the
+            // resulting file starting from the smallest bit and working to
+            // the largest
+            for(int i = 0; i <8; i++){
+                // get the next bit of the message
+                insertBit = (byte) (messageByte & 1); //0x00000001
+
+                // prepare the massage byte to extract the next bit
+                messageByte = (byte) (messageByte >> 1);
+
+                // insert the first 7 bits of the original file + 1 bit of the message
+                cover[targInd] = (byte) ((cover[targInd] & 254) | insertBit);
+                targInd += byteSpread;
+            } 
+        }
+        return cover;
     }
 
     /**
@@ -342,8 +159,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      */
     @Override
     public String extractMsgFileName(byte[] stegoData, String stegoFileName) throws OpenStegoException {
-        // dummy code to fill the method
-        return "a";
+        return "testOutput.mp3";
     }
 
     /**
@@ -357,9 +173,50 @@ public class AudioPlugin extends OpenStegoPlugin {
      */
     @Override
     public byte[] extractData(byte[] stegoData, String stegoFileName, byte[] origSigData) throws OpenStegoException {
-        // dummy code to fill the method
-        byte[] b = new byte[1];
-        return b;
+        int messInd = 0;
+        
+        byte extractedByte, messageByte;
+        
+
+        int size = 0;
+        int tempByte;
+        int sizeByte = 0;
+        // get the size of the message
+        for(int j = 3; j >=0; j--){
+            for(int k = 0; k <8; k++){
+
+                extractedByte = stegoData[targInd];
+                tempByte = (extractedByte & 1);
+                tempByte = (tempByte << k);
+                sizeByte = (tempByte | sizeByte);
+                targInd += byteSpread;
+            }
+            size = size | (Math.abs(sizeByte) << (j*8));
+        }
+        
+        byte[] output = new byte[(int) size];
+
+        while(messInd < size){
+            //messageOutput.seek(messInd);
+
+            //coverFile.seek(targInd);
+            messageByte = 0; // 0x00000000
+
+            // reconstruct 1 message byte out of 8 cover file bytes
+            for(int i = 0; i <8; i++){
+                extractedByte = stegoData[targInd];
+                tempByte = (byte) (extractedByte & (byte) 1);
+                tempByte = (byte) (tempByte << i);
+                messageByte = (byte) (tempByte | messageByte);
+
+                targInd += byteSpread;
+            }
+            //messageOutput.write(messageByte);
+            output[messInd] = messageByte;
+            messInd++;
+        }
+
+        return output;
     }
 
     /**
