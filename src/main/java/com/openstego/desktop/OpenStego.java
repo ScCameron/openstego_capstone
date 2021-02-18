@@ -431,14 +431,14 @@ public class OpenStego {
             
 
             // test text
-            //String[] arguments = {"embed", "-a", "AudioLSB", "-mf", "test_files\\testTextInput.txt", "-cf", "test_files\\sample.wav", "-sf", "test_files\\stegRes.wav"};
-            //String[] arguments = {"extract", "-a", "AudioLSB", "-sf", "test_files\\stegRes.wav", "-xd", "test_files"};
+            //String[] arguments = {"embed", "-a", "AudioLSB", "-mf", "test_files\\testTextInput.txt", "-cf", "test_files\\square.wav", "-sf", "test_files\\stegRes.wav", "-e", "-p", "pass"};
+            //String[] arguments = {"extract", "-a", "AudioLSB", "-sf", "test_files\\stegRes.wav", "-xd", "test_files", "-xf", "output.txt", "-e", "-p", "pass"};
             
             // test audio file
-            String[] arguments = {"embed", "-a", "AudioLSB", "-mf", "test_files\\testInput.mp3", "-cf", "test_files\\sample.wav", "-sf", "test_files\\stegRes.wav"};
-            //String[] arguments = {"extract", "-a", "AudioLSB", "-sf", "test_files\\stegRes.wav", "-xd", "test_files"};
+            //String[] arguments = {"embed", "-a", "AudioLSB", "-mf", "test_files\\testInput.mp3", "-cf", "test_files\\sample.wav", "-sf", "test_files\\stegRes.wav", "-e", "-p", "pass"};
+            //String[] arguments = {"extract", "-a", "AudioLSB", "-sf", "test_files\\stegRes.wav", "-xd", "test_files", "-xf", "output.mp3", "-e", "-p", "pass"};
             
-            args = arguments;
+            //args = arguments;
             
             if (args.length == 0) { // Start GUI
                 try {
