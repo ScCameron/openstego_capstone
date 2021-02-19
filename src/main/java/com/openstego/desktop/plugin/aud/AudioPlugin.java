@@ -41,6 +41,7 @@ public class AudioPlugin extends OpenStegoPlugin {
     // be lowered to 0 and the user will be informed
     int byteSizeThreshold = 40; 
     
+    //String password;
     
     /**
      * LabelUtil instance to retrieve labels
@@ -155,7 +156,6 @@ public class AudioPlugin extends OpenStegoPlugin {
         int count = findUsableBytes(cover, msg.length); // number of usable bytes in cover file
         
         System.out.printf("%d bytes are able to be inserted\n", count/8);
-
         // check for message length
         if(msg.length * 8 > count){
             System.out.println("Message too long");
@@ -165,7 +165,6 @@ public class AudioPlugin extends OpenStegoPlugin {
         
         // Insert the message length
         long data = msg.length;
-        //System.out.println(msg.length);
         //Store the length in a byte array
         byte[] messLenArray ={
             (byte)((data >> 24) & 0xff),
@@ -174,9 +173,8 @@ public class AudioPlugin extends OpenStegoPlugin {
             (byte)(data & 0xff),
         };
         
-        // remove file path from file name
-        stegoFileName = stegoFileName.substring(stegoFileName.indexOf("\\")+1);
-        int seed = stegoFileName.hashCode();
+        // set the rng seed to the hash of the encryption password
+        int seed = config.getPassword().hashCode();
         // RNG used to jump pseudorandom number of bytes ahead to spread data secretly
         Random rand = new Random(seed);
 
@@ -195,9 +193,6 @@ public class AudioPlugin extends OpenStegoPlugin {
         }
         
         byteSpread = getSpread(count, msg.length);
-        
-        //Random rand = new Random(123);
-        //System.out.println(targInd);
         
         // For every byte in the message
         while(messInd < msg.length){
@@ -218,7 +213,6 @@ public class AudioPlugin extends OpenStegoPlugin {
                 while(cover[targInd] < byteSizeThreshold && cover[targInd] >= -1*byteSizeThreshold){
                     targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
                 }
-                //System.out.println(targInd);
                 cover[targInd] = (byte) ((cover[targInd] & 254) | insertBit);
                 targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
             } 
@@ -258,7 +252,8 @@ public class AudioPlugin extends OpenStegoPlugin {
         int tempByte;
         int sizeByte = 0;
         
-        int seed = stegoFileName.hashCode();
+        // set the rng seed to the hash of the encryption password
+        int seed = config.getPassword().hashCode();
         // RNG used to jump pseudorandom number of bytes ahead to extract the spread data
         Random rand = new Random(seed);
         
