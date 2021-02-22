@@ -25,6 +25,8 @@ import java.util.Set;
 public class mp3Handler {       
     //How many bytes to skip
     public int spacing = 8;
+    
+    private byte headByte2 = 0;
     //Maybe try treating as different endian
     
     /**
@@ -34,23 +36,44 @@ public class mp3Handler {
      * @return the index in the array as an integer
      */
     public int findFirstHeader(byte[] audioFile){
-        int pos, results;
-        
+//        int pos, results;
+//        
+//        pos = 0;
+//        results = -1; //If we failed to find the first frame
+//        //Loop through the file looking for the end of the header
+//        while(pos < audioFile.length){
+//            //Headers start with ff
+//            if ((audioFile[pos] == (byte)0xFF) && 
+//                ((audioFile[pos+1] == (byte)0xFB) || 
+//                        (audioFile[pos+1] == (byte)0xFA))) {
+//                results = pos;
+//                break; 
+//            }
+//            pos++;
+//        }
+//            
+//        return 0;//results;
+
+        int pos, result;//, count;
         pos = 0;
-        results = -1; //If we failed to find the first frame
-        //Loop through the file looking for the end of the header
+        //count = 0;
+
         while(pos < audioFile.length){
-            //Headers start with ff
-            if ((audioFile[pos] == (byte)0xFF) && 
-                ((audioFile[pos+1] == (byte)0xFB) || 
-                        (audioFile[pos+1] == (byte)0xFA))) {
-                results = pos;
-                break; 
+            //System.out.println("f");
+            // help with algorith from https://www.allegro.cc/forums/thread/591512/674023#target
+            if(audioFile[pos] == (byte)0xff && ((audioFile[pos+1]>>5)&(byte)0x7) == (byte)0x7 &&
+              ((audioFile[pos+1]>>1)&(byte)0x3) != (byte)0 && ((audioFile[pos+2]>>4)&(byte)0xf) != (byte)0xf &&
+            ((audioFile[pos+2]>>2)&(byte)0x3) != (byte)0x3) {
+                result = pos;
+                headByte2 = audioFile[pos+1];
+                //count++;
+                break;
+
             }
             pos++;
         }
-            
-        return results;
+        
+        return pos;
     }
     
     /**
@@ -63,20 +86,43 @@ public class mp3Handler {
      int pos, result;
      pos = prevHeadPos+4;//Skip this header
      result = -1; //If we failed to find the next frame
-     //int count = 0;
+     int count = 0;
+     byte b2 = 0;
+    byte b4 = 0; // byte 2 and 4 of the header
+    int b2Count, b4Count = 0;
      //Loop through looking for the next frame
      while(pos < audioFile.length){
          
          
         // TESTING: currently have hard coded the header for the test file which is 
         // usually FF E3 XX 64
-        if ((audioFile[pos] == (byte)0xFF) && 
-            ((audioFile[pos+1] == (byte)0xE3)) && 
-            (audioFile[pos+3] == (byte)0x64)) {
+//        if ((audioFile[pos] == (byte)0xFF) && 
+//            ((audioFile[pos+1] >= (byte)0xE2)) && 
+//            ((audioFile[pos+3] & (byte) 0x03) == (byte)0x00)) {
+//            result = pos;
+//            count++;
+//            //break; 
+//            }
+
+
+        
+        // help with algorith from https://www.allegro.cc/forums/thread/591512/674023#target
+        if(audioFile[pos] == (byte)0xff && ((audioFile[pos+1]>>5)&(byte)0x7) == (byte)0x7 &&
+          ((audioFile[pos+1]>>1)&(byte)0x3) != (byte)0 && ((audioFile[pos+2]>>4)&(byte)0xf) != (byte)0xf &&
+        ((audioFile[pos+2]>>2)&(byte)0x3) != (byte)0x3) {
             result = pos;
-            //count++;
-            break; 
+            //System.out.printf("%x, %x\n", headByte2, audioFile[pos+1]);
+//            if(b2 == 0){
+//                b2 = audioFile[pos+1];
+//                count++;
+//            }
+            if(audioFile[pos+1] == headByte2){
+                count++;
+                //System.out.printf("%x %x %x %x\n", audioFile[pos], audioFile[pos+1], audioFile[pos+2], audioFile[pos+3]);
+                break; 
             }
+            
+        }
         
         pos++;    
      }
