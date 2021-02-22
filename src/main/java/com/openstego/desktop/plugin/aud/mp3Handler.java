@@ -63,16 +63,24 @@ public class mp3Handler {
      int pos, result;
      pos = prevHeadPos+4;//Skip this header
      result = -1; //If we failed to find the next frame
+     //int count = 0;
      //Loop through looking for the next frame
      while(pos < audioFile.length){
+         
+         
+        // TESTING: currently have hard coded the header for the test file which is 
+        // usually FF E3 XX 64
         if ((audioFile[pos] == (byte)0xFF) && 
-            ((audioFile[pos+1] & (byte)0xE0) == (byte)0xE0) && 
-            ((audioFile[pos+2] & (byte)0xF0) != (byte)0xF0)) {
+            ((audioFile[pos+1] == (byte)0xE3)) && 
+            (audioFile[pos+3] == (byte)0x64)) {
             result = pos;
+            //count++;
             break; 
             }
+        
         pos++;    
      }
+     //System.out.printf("count of frames is %d\n", count);
 
      return result;
     }
@@ -124,7 +132,7 @@ public class mp3Handler {
         for(int j = 0; j < 4; j++){ // fixed 4 bytes for message size
             for(int k = 0; k < 8; k++){
                 insertBit = (byte) (messLenArray[j] & (byte) 1);
-                cover[pos+2] = (byte) ((cover[pos+2]) | (insertBit)); //hide
+                cover[pos+2] = (byte) ((cover[pos+2] & 254) | (insertBit)); //hide
                 messLenArray[j] = (byte) (messLenArray[j] >> 1);
                 pos = findNextFrame(cover, pos); //next frame header
             }
@@ -141,7 +149,7 @@ public class mp3Handler {
                 messageByte = (byte) (messageByte >> 1);
 
                 // insert the first 7 bits of the original file + 1 bit of the message
-                cover[pos+2] = (byte) ((cover[pos+2]) | (insertBit)); //hide
+                cover[pos+2] = (byte) ((cover[pos+2] & 254) | (insertBit)); //hide
                 pos = findNextFrame(cover, pos); //next frame header
 
             }
@@ -171,16 +179,16 @@ public class mp3Handler {
                 tempByte = (tempByte << k);
                 sizeByte = (tempByte | sizeByte);
                 pos = findNextFrame(cover, pos); //next frame header
-                System.out.println( (j*8) << Math.abs(sizeByte) );
+                //System.out.println( Math.abs(sizeByte) << (j*8));
             }
             size = size | (Math.abs(sizeByte) << (j*8));
-            sizeByte = 0;
-            //System.out.println(size);
+            //sizeByte = 0;
+            //System.out.printf("size is %s\n", size);
 
         }       
         byte[] output = new byte[(int) size];
         System.out.println(size);
-        size = 0;//kill here
+        //size = 0;//kill here
         while(messInd < size){
             //messageOutput.seek(messInd);
 
@@ -189,6 +197,7 @@ public class mp3Handler {
 
             // reconstruct 1 message byte out of 8 cover file bytes
             for(i = 0; i <8; i++){
+                //System.out.printf("%x\n", pos);
                 extractedByte = cover[pos+2];
                 tempByte = (byte) (extractedByte & (byte) 1);
                 tempByte = (byte) (tempByte << i);
@@ -198,6 +207,7 @@ public class mp3Handler {
             }
             //messageOutput.write(messageByte);
             output[messInd] = messageByte;
+            //System.out.printf("output byte is %s\n", output);
             messInd++;
         }
 
