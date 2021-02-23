@@ -5,29 +5,79 @@
  */
 package com.openstego.desktop.plugin.aud;
 
-//Imports
-import java.io.*;
-import java.nio.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.lang.*;
-import  java.util.BitSet;
-import java.util.HashSet;
-import java.util.Set;
+import com.openstego.desktop.OpenStegoConfig;
+import com.openstego.desktop.OpenStegoException;
+import com.openstego.desktop.OpenStegoPlugin;
+import com.openstego.desktop.plugin.lsb.LSBConfig;
+import com.openstego.desktop.ui.OpenStegoUI;
+import com.openstego.desktop.ui.PluginEmbedOptionsUI;
+import com.openstego.desktop.util.LabelUtil;
+import com.openstego.desktop.util.cmd.CmdLineOptions;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author Patrick
  * Citation: mp3Stegz: https://sourceforge.net/projects/mp3stegz/
  */
-public class mp3Handler {       
+public class mp3Handler extends OpenStegoPlugin {
+    /**
+     * Constant for Namespace to use for this plugin
+     */
+    public final static String NAMESPACE = "mp3Stego";
     //How many bytes to skip
     public int spacing = 8;
     
     private byte headByte2 = 0;
-    //Maybe try treating as different endian
+    
+    /**
+     * LabelUtil instance to retrieve labels
+     */
+    private final static LabelUtil labelUtil = LabelUtil.getInstance(NAMESPACE);
+    
+    /**
+     * Default constructor
+     */
+    public mp3Handler() {
+        LabelUtil.addNamespace(NAMESPACE, "i18n.AudioPluginLabels");
+    }
+    
+    /**
+     * Gives the name of the plugin
+     *
+     * @return Name of the plugin
+     */
+    @Override
+    public String getName(){
+        return "mp3Stego";
+    }
+    
+    /**
+     * Gives the purpose(s) of the plugin
+     *
+     * @return Purpose(s) of the plugin
+     */
+    @Override
+    public List<Purpose> getPurposes(){
+        List<Purpose> purposes = new ArrayList<Purpose>();
+        purposes.add(Purpose.DATA_HIDING);
+        return purposes;
+    }
+    
+    /**
+     * Gives a short description of the plugin
+     *
+     * @return Short description of the plugin
+     */
+    @Override
+    public String getDescription(){
+        return "Hide data in mp3 files";
+    }
+    
+    // ------------- Core Stego Methods -------------
+    
     
     /**
      * Look through the file 
@@ -36,23 +86,6 @@ public class mp3Handler {
      * @return the index in the array as an integer
      */
     public int findFirstHeader(byte[] audioFile){
-//        int pos, results;
-//        
-//        pos = 0;
-//        results = -1; //If we failed to find the first frame
-//        //Loop through the file looking for the end of the header
-//        while(pos < audioFile.length){
-//            //Headers start with ff
-//            if ((audioFile[pos] == (byte)0xFF) && 
-//                ((audioFile[pos+1] == (byte)0xFB) || 
-//                        (audioFile[pos+1] == (byte)0xFA))) {
-//                results = pos;
-//                break; 
-//            }
-//            pos++;
-//        }
-//            
-//        return 0;//results;
 
         int pos, result;//, count;
         pos = 0;
@@ -151,7 +184,20 @@ public class mp3Handler {
         return result;
     }
 
-    byte[] hideFileAlt(byte[] cover, byte[] toHide){
+    /**
+     * Method to embed the message into the cover data
+     *
+     * @param toHide Message to be embedded
+     * @param msgFileName Name of the message file. If this value is provided, then the filename should be embedded in
+     *        the cover data
+     * @param cover Cover data into which message needs to be embedded
+     * @param coverFileName Name of the cover file
+     * @param stegoFileName Name of the output stego file
+     * @return Stego data containing the message
+     * @throws OpenStegoException
+     */
+    @Override
+    public byte[] embedData(byte[] toHide, String msgFileName, byte[] cover, String coverFileName, String stegoFileName) {
         int pos, posNext, i, messInd, targInd;
         byte insertBit, messageByte;
         long data = toHide.length;
@@ -204,7 +250,32 @@ public class mp3Handler {
         return cover;        
     }
     
-    byte[] unHideFileAlt(byte[] cover) {
+/**
+     * Method to extract the message file name from the stego data
+     *
+     * @param stegoData Stego data containing the message
+     * @param stegoFileName Name of the stego file
+     * @return Message file name
+     * @throws OpenStegoException
+     */
+    @Override
+    public String extractMsgFileName(byte[] stegoData, String stegoFileName) throws OpenStegoException {
+        return "output.file";
+    }
+    
+    
+    
+/**
+     * Method to extract the message from the stego data
+     *
+     * @param cover Stego data containing the message
+     * @param stegoFileName Name of the stego file
+     * @param origSigData Optional signature data file for watermark
+     * @return Extracted message
+     * @throws OpenStegoException
+     */
+    @Override
+    public byte[] extractData(byte[] cover, String stegoFileName, byte[] origSigData) throws OpenStegoException {
         int pos, sizeByte, tempByte, messInd, i;
         byte extractedByte, messageByte;
         long size;
@@ -260,30 +331,154 @@ public class mp3Handler {
         return output;
     }
 
-    //Just my testing function
-    public void test(){
-        int pos = 0;
-        int nextPos = 0;
-        byte[] head = new byte[4];
-        int tot = 0;
-        BitSet bit = new BitSet();
-        
-        try {
-            byte[] testFile = Files.readAllBytes(Paths.get("test_files\\testInput.mp3"));
-            byte[] hide = Files.readAllBytes(Paths.get("test_files\\testTextLonger.txt"));
-            
-          
-            testFile = hideFileAlt(testFile, hide); 
-          
-            Files.write(Paths.get("test_files\\mp3Res.mp3"), testFile);
-            
-            byte[] result = unHideFileAlt(testFile);
-            Files.write(Paths.get("test_files\\resultingMessage.txt"), result);
-            
-        } catch (IOException ex) {
-            Logger.getLogger(mp3Handler.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+    /**
+     * Method to generate the signature data. This method needs to be implemented only if the purpose of the plugin is
+     * Watermarking
+     *
+     * @return Signature data
+     * @throws OpenStegoException
+     */
+    @Override
+    public byte[] generateSignature() throws OpenStegoException {
+        return null;
     }
     
+    /**
+     * Method to check the correlation between original signature and the extracted watermark
+     *
+     * @param origSigData Original signature data
+     * @param watermarkData Extracted watermark data
+     * @return Correlation
+     * @throws OpenStegoException
+     */
+    @Override
+    public double getWatermarkCorrelation(byte[] origSigData, byte[] watermarkData) throws OpenStegoException {
+        return 0;
+    }
+    
+    /**
+     * Method to get correlation value which above which it can be considered that watermark strength is high
+     *
+     * @return High watermark
+     * @throws OpenStegoException
+     */
+    @Override
+    public double getHighWatermarkLevel() throws OpenStegoException {
+        return 0;
+    }
+    
+    /**
+     * Method to get correlation value which below which it can be considered that watermark strength is low
+     *
+     * @return Low watermark
+     * @throws OpenStegoException
+     */
+    @Override
+    public double getLowWatermarkLevel() throws OpenStegoException {
+        return 0;
+    }
+    
+    /**
+     * Method to get difference between original cover file and the stegged file
+     *
+     * @param stegoData Stego data containing the embedded data
+     * @param stegoFileName Name of the stego file
+     * @param coverData Original cover data
+     * @param coverFileName Name of the cover file
+     * @param diffFileName Name of the output difference file
+     * @return Difference data
+     * @throws OpenStegoException
+     */
+    @Override
+    public byte[] getDiff(byte[] stegoData, String stegoFileName, byte[] coverData, String coverFileName, String diffFileName) {
+        return null;
+    }
+    
+    /**
+     * Method to find out whether given stego data can be handled by this plugin or not
+     *
+     * @param stegoData Stego data containing the message
+     * @return Boolean indicating whether the stego data can be handled by this plugin or not
+     */
+    @Override
+    public boolean canHandle(byte[] stegoData) {
+        return true;
+    }
+    
+    /**
+     * Method to get the list of supported file extensions for reading
+     *
+     * @return List of supported file extensions for reading
+     * @throws OpenStegoException
+     */
+    @Override
+    public List<String> getReadableFileExtensions() throws OpenStegoException {
+        List<String> fileTypes = new ArrayList<String>();
+        fileTypes.add("mp3");
+        return fileTypes;
+    }
+    
+    /**
+     * Method to get the list of supported file extensions for writing
+     *
+     * @return List of supported file extensions for writing
+     * @throws OpenStegoException
+     */
+    @Override
+    public List<String> getWritableFileExtensions() throws OpenStegoException {
+        List<String> fileTypes = new ArrayList<String>();
+        fileTypes.add("mp3");
+        return fileTypes;        
+    }
+    
+    // ------------- Command-line Related Methods -------------
+
+    /**
+     * Method to populate the standard command-line options used by this plugin
+     *
+     * @param options Existing command-line options. Plugin-specific options will get added to this list
+     * @throws OpenStegoException
+     */
+    @Override
+    public void populateStdCmdLineOptions(CmdLineOptions options) throws OpenStegoException {
+    }
+
+    /**
+     * Method to get the usage details of the plugin
+     *
+     * @return Usage details of the plugin
+     * @throws OpenStegoException
+     */
+    @Override
+    public String getUsage() throws OpenStegoException {
+        return "This plugin uses the default OpenStego command line options";
+    }
+
+    // ------------- GUI Related Methods -------------
+    
+    /**
+     * Method to get the UI object for "Embed" action specific to this plugin. This UI object will be embedded inside
+     * the main OpenStego GUI
+     *
+     * @param stegoUI Reference to the parent OpenStegoUI object
+     * @return UI object specific to this plugin for "Embed" action
+     * @throws OpenStegoException
+     */
+    @Override
+    public PluginEmbedOptionsUI getEmbedOptionsUI(OpenStegoUI stegoUI) throws OpenStegoException {
+        return null;
+    }
+
+    // ------------- Other Methods -------------
+
+    /**
+     * Method to get the configuration class specific to this plugin
+     *
+     * @return Configuration class specific to this plugin
+     */
+    @Override
+    public Class<? extends OpenStegoConfig> getConfigClass() {
+        return LSBConfig.class;
+    }
+
 }
