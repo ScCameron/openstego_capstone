@@ -431,15 +431,10 @@ public class OpenStego {
             
 
             // test text
-            //String[] arguments = {"embed", "-a", "AudioLSB", "-mf", "test_files\\testTextInput.txt", "-cf", "test_files\\sample.wav", "-sf", "test_files\\stegRes.wav"};
-            //String[] arguments = {"extract", "-a", "AudioLSB", "-sf", "test_files\\stegRes.wav", "-xd", "test_files"};
-            
-            // test audio file
-            //String[] arguments = {"embed", "-a", "AudioLSB", "-mf", "test_files\\testInput.mp3", "-cf", "test_files\\sample.wav", "-sf", "test_files\\stegRes.wav"};
-            //String[] arguments = {"extract", "-a", "AudioLSB", "-sf", "test_files\\stegRes.wav", "-xd", "test_files"};
-            mp3Handler h = new mp3Handler();
-            h.test();
-            //args = arguments;
+            //String[] arguments = {"embed", "-a", "mp3Stego", "-mf", "test_files\\testTextLonger.txt", "-cf", "test_files\\OLDtestInput.mp3", "-sf", "test_files\\mp3Res.mp3", "-e", "-p", "pass"};
+            String[] arguments = {"extract", "-a", "mp3Stego", "-sf", "test_files\\mp3Res.mp3", "-xd", "test_files", "-xf", "output.txt", "-e", "-p", "pass"};
+
+            args = arguments;
             
             if (args.length == 0) { // Start GUI
                 try {

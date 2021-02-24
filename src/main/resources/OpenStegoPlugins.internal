@@ -1,3 +1,4 @@
 com.openstego.desktop.plugin.randlsb.RandomLSBPlugin
 com.openstego.desktop.plugin.dwtdugad.DWTDugadPlugin
 com.openstego.desktop.plugin.aud.AudioPlugin
+com.openstego.desktop.plugin.aud.mp3Handler
