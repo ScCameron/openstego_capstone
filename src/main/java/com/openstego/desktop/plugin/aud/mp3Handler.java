@@ -198,12 +198,13 @@ public class mp3Handler extends OpenStegoPlugin {
      */
     @Override
     public byte[] embedData(byte[] toHide, String msgFileName, byte[] cover, String coverFileName, String stegoFileName) {
-        int pos, posNext, i, messInd, targInd;
+        int pos, posNext, i, messInd, targInd, pass, shift, posMod;
         byte insertBit, messageByte;
         long data = toHide.length;
-        
+        System.out.println((toHide.length*8)+32);
+        System.out.println(frameCount(cover)*3);
         //Check if the data will fit in the cover
-        if((toHide.length*8)+32> frameCount(cover)){
+        if((toHide.length*8)+32> frameCount(cover)*3){
             System.out.println("File too long to hide");
             java.lang.System.exit(0);
         }
@@ -224,13 +225,17 @@ public class mp3Handler extends OpenStegoPlugin {
         for(int j = 0; j < 4; j++){ // fixed 4 bytes for message size
             for(int k = 0; k < 8; k++){
                 insertBit = (byte) (messLenArray[j] & (byte) 1);
-                cover[pos+2] = (byte) ((cover[pos+2] & 254) | (insertBit)); //hide
+                cover[pos+2] = (byte) ((cover[pos+2] & 254) | (insertBit)<<0); //hide
                 messLenArray[j] = (byte) (messLenArray[j] >> 1);
                 pos = findNextFrame(cover, pos); //next frame header
             }
             
         }
-
+        
+        //These help determine which bit is set
+        pass = 1;
+        shift = 0; 
+        posMod = 2;
         while(targInd <toHide.length){
             messageByte = toHide[targInd];
             for(i=0;i<8;i++){
@@ -241,11 +246,46 @@ public class mp3Handler extends OpenStegoPlugin {
                 messageByte = (byte) (messageByte >> 1);
 
                 // insert the first 7 bits of the original file + 1 bit of the message
-                cover[pos+2] = (byte) ((cover[pos+2] & 254) | (insertBit)); //hide
+                cover[pos+posMod] = (byte) ((cover[pos+2] & 254) | (insertBit)<<shift); //hide
                 pos = findNextFrame(cover, pos); //next frame header
-
+                //This stuff handles the positioning of the bit
+                if(pos == -1){
+                    if(pass == 1){
+                        pos = findFirstHeader(cover);//Sart at the beginning of the file
+                        shift = 2; //leftshift 3, original bit 
+                        posMod = 3; //last byte of header
+                        pass = 2;
+                    }
+                    if(pass == 2){
+                        pos = findFirstHeader(cover);//Sart at the beginning of the file
+                        shift = 3; //leftshift 3, original bit 
+                        posMod = 3; //last byte of header
+                        pass = 3;
+                    }
+                    if(pass == 3){
+                        java.lang.System.exit(0); //somethings gone wrong, we need to exit
+                    }
+                }
             }
             targInd++;
+            //This stuff handles the positioniong of the bit
+            if(pos == -1){
+                if(pass == 1){
+                    pos = findFirstHeader(cover);//Sart at the beginning of the file
+                    shift = 2; //leftshift 3, original bit 
+                    posMod = 3; //last byte of header
+                    pass = 2;
+                }
+                if(pass == 2){
+                    pos = findFirstHeader(cover);//Sart at the beginning of the file
+                    shift = 3; //leftshift 3, original bit 
+                    posMod = 3; //last byte of header
+                    pass = 3;
+                }
+                if(pass == 3){
+                    java.lang.System.exit(0); //somethings gone wrong, we need to exit
+                }
+            }
         }
         return cover;        
     }
@@ -276,7 +316,7 @@ public class mp3Handler extends OpenStegoPlugin {
      */
     @Override
     public byte[] extractData(byte[] cover, String stegoFileName, byte[] origSigData) throws OpenStegoException {
-        int pos, sizeByte, tempByte, messInd, i;
+        int pos, sizeByte, tempByte, messInd, i, pass, shift, posMod;
         byte extractedByte, messageByte;
         long size;
         
@@ -302,7 +342,10 @@ public class mp3Handler extends OpenStegoPlugin {
             //sizeByte = 0;
             //System.out.printf("size is %s\n", size);
 
-        }       
+        }   
+        pass = 1;
+        shift = 0;
+        posMod = 2;
         byte[] output = new byte[(int) size];
         System.out.println(size);
         //size = 0;//kill here
@@ -315,17 +358,51 @@ public class mp3Handler extends OpenStegoPlugin {
             // reconstruct 1 message byte out of 8 cover file bytes
             for(i = 0; i <8; i++){
                 //System.out.printf("%x\n", pos);
-                extractedByte = cover[pos+2];
-                tempByte = (byte) (extractedByte & (byte) 1);
+                extractedByte = cover[pos+posMod];
+                tempByte = (byte) (extractedByte & (byte) 1<<shift);
+                tempByte = (byte) (tempByte >>shift);//we want to move the bit to the end
                 tempByte = (byte) (tempByte << i);
                 messageByte = (byte) (tempByte | messageByte);
-
                 pos = findNextFrame(cover, pos); //next frame header
+                if(pos == -1){
+                      if(pass == 1){
+                          pos = findFirstHeader(cover);//Sart at the beginning of the file
+                          shift = 2; //leftshift 3, original bit 
+                          posMod = 3; //last byte of header
+                          pass = 2;
+                      }
+                      if(pass == 2){
+                          pos = findFirstHeader(cover);//Sart at the beginning of the file
+                          shift = 3; //leftshift 3, original bit 
+                          posMod = 3; //last byte of header
+                          pass = 3;
+                      }
+                      if(pass == 3){
+                          java.lang.System.exit(0); //somethings gone wrong, we need to exit
+                      }
+                  }                
             }
             //messageOutput.write(messageByte);
             output[messInd] = messageByte;
             //System.out.printf("output byte is %s\n", output);
             messInd++;
+            if(pos == -1){
+                 if(pass == 1){
+                     pos = findFirstHeader(cover);//Sart at the beginning of the file
+                     shift = 2; //leftshift 3, original bit 
+                     posMod = 3; //last byte of header
+                     pass = 2;
+                 }
+                 if(pass == 2){
+                     pos = findFirstHeader(cover);//Sart at the beginning of the file
+                     shift = 3; //leftshift 3, original bit 
+                     posMod = 3; //last byte of header
+                     pass = 3;
+                 }
+                 if(pass == 3){
+                     java.lang.System.exit(0); //somethings gone wrong, we need to exit
+                 }
+             }           
         }
 
         return output;
