@@ -431,15 +431,15 @@ public class OpenStego {
             
 
             // test text
-            //String[] arguments = {"embed", "-a", "mp3Stego", "-mf", "test_files\\testTextLonger2.txt", "-cf", "test_files\\OLDtestInput.mp3", "-sf", "test_files\\mp3Res.mp3", "-e", "-p", "pass"};
-            String[] arguments = {"extract", "-a", "mp3Stego", "-sf", "test_files\\mp3Res.mp3", "-xd", "test_files", "-xf", "output.txt", "-e", "-p", "pass"};
+            String[] arguments = {"embed", "-a", "mp3Stego", "-mf", "test_files\\testTextLonger2.txt", "-cf", "test_files\\OLDtestInput.mp3", "-sf", "test_files\\mp3Res.mp3", "-e", "-p", "pass"};
+            //String[] arguments = {"extract", "-a", "mp3Stego", "-sf", "test_files\\mp3Res.mp3", "-xd", "test_files", "-xf", "output.txt", "-e", "-p", "pass"};
 
-            args = arguments;
+            //args = arguments;
             
             if (args.length == 0) { // Start GUI
                 try {
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                } catch (Exception e) {
+                } catch (Exception e) { 
                     // Ignore
                 }
                 new OpenStegoUI().setVisible(true);

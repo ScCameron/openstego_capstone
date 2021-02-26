@@ -86,26 +86,21 @@ public class mp3Handler extends OpenStegoPlugin {
      * @return the index in the array as an integer
      */
     public int findFirstHeader(byte[] audioFile){
-
-        int pos, result;//, count;
-        pos = 0;
-        //count = 0;
+        int pos = 0;
 
         while(pos < audioFile.length){
-            //System.out.println("f");
-            // help with algorith from https://www.allegro.cc/forums/thread/591512/674023#target
+            // Check specific bits to see if it is a mp3 header
+            // help with header algorith from https://www.allegro.cc/forums/thread/591512/674023#target
             if(audioFile[pos] == (byte)0xff && ((audioFile[pos+1]>>5)&(byte)0x7) == (byte)0x7 &&
-              ((audioFile[pos+1]>>1)&(byte)0x3) != (byte)0 && ((audioFile[pos+2]>>4)&(byte)0xf) != (byte)0xf &&
-            ((audioFile[pos+2]>>2)&(byte)0x3) != (byte)0x3) {
-                result = pos;
+            ((audioFile[pos+1]>>1)&(byte)0x3) != (byte)0 && ((audioFile[pos+2]>>4)&(byte)0xf) != (byte)0xf &&
+            ((audioFile[pos+2]>>2)&(byte)0x3) != (byte)0x3) 
+            {
+                // store the second byte of the first header as it helps with finding future headers
                 headByte2 = audioFile[pos+1];
-                //count++;
                 break;
-
             }
             pos++;
         }
-        
         return pos;
     }
     
@@ -116,72 +111,44 @@ public class mp3Handler extends OpenStegoPlugin {
      * @return the index of the next header as an int
      */
     public int findNextFrame(byte[] audioFile, int prevHeadPos) {
-     int pos, result;
-     pos = prevHeadPos+4;//Skip this header
-     result = -1; //If we failed to find the next frame
-     int count = 0;
-     byte b2 = 0;
-    byte b4 = 0; // byte 2 and 4 of the header
-    int b2Count, b4Count = 0;
-     //Loop through looking for the next frame
-     while(pos < audioFile.length){
-         
-         
-        // TESTING: currently have hard coded the header for the test file which is 
-        // usually FF E3 XX 64
-//        if ((audioFile[pos] == (byte)0xFF) && 
-//            ((audioFile[pos+1] >= (byte)0xE2)) && 
-//            ((audioFile[pos+3] & (byte) 0x03) == (byte)0x00)) {
-//            result = pos;
-//            count++;
-//            //break; 
-//            }
-
-
+        int pos, result;
+        pos = prevHeadPos+4; //Skip this header
+        result = -1; //If we failed to find the next frame (reach end of file)
         
-        // help with algorith from https://www.allegro.cc/forums/thread/591512/674023#target
-        if(audioFile[pos] == (byte)0xff && ((audioFile[pos+1]>>5)&(byte)0x7) == (byte)0x7 &&
-          ((audioFile[pos+1]>>1)&(byte)0x3) != (byte)0 && ((audioFile[pos+2]>>4)&(byte)0xf) != (byte)0xf &&
-        ((audioFile[pos+2]>>2)&(byte)0x3) != (byte)0x3) {
-            result = pos;
-            //System.out.printf("%x, %x\n", headByte2, audioFile[pos+1]);
-//            if(b2 == 0){
-//                b2 = audioFile[pos+1];
-//                count++;
-//            }
-            if(audioFile[pos+1] == headByte2){
-                count++;
-                //System.out.printf("%x %x %x %x\n", audioFile[pos], audioFile[pos+1], audioFile[pos+2], audioFile[pos+3]);
-                break; 
+        //Loop through looking for the next frame
+        while(pos < audioFile.length){
+            // Check specific bits to see if it is a mp3 header
+            // help with header algorith from https://www.allegro.cc/forums/thread/591512/674023#target
+            if(audioFile[pos] == (byte)0xff && ((audioFile[pos+1]>>5)&(byte)0x7) == (byte)0x7 &&
+            ((audioFile[pos+1]>>1)&(byte)0x3) != (byte)0 && ((audioFile[pos+2]>>4)&(byte)0xf) != (byte)0xf &&
+            ((audioFile[pos+2]>>2)&(byte)0x3) != (byte)0x3) 
+            {
+                result = pos;
+                // check against our stored byte 2 from findFirstHeader() to see it its a header
+                if(audioFile[pos+1] == headByte2){
+                    break; 
+                }
             }
-            
-        }
-        
         pos++;    
      }
-     //System.out.printf("count of frames is %d\n", count);
-
      return result;
     }
 
     /**
-     * Counts the number of frames, unused. 
+     * Counts the number of frames in an mp3 file. 
      * @param audioFile byte array of an mp3
      * @return the number of frames as an integer
      */
     int frameCount(byte[] audioFile){
-        int pos, posNext, count, result;
-        
-        result = -1; 
+        int pos, posNext, count;
         pos = findFirstHeader(audioFile);
         count = 0;
         posNext = pos;
         while(posNext != -1){
-            count = count+1;
+            count++;
             posNext = findNextFrame(audioFile, posNext);
         }
-        result = count;
-        return result;
+        return count;
     }
 
     /**
@@ -198,93 +165,103 @@ public class mp3Handler extends OpenStegoPlugin {
      */
     @Override
     public byte[] embedData(byte[] toHide, String msgFileName, byte[] cover, String coverFileName, String stegoFileName) {
-        int pos, posNext, i, messInd, targInd, pass, shift, posMod;
+        int pos, posNext, i, messInd, targInd, pass, shift, posMod, coverMask, frames;
         byte insertBit, messageByte;
         long data = toHide.length;
-        System.out.println((toHide.length*8)+32);
-        System.out.println(frameCount(cover)*3);
+        messageByte = 0;
+        
+        // how far in the the bit is from the left that we are modifying
+        shift = 0;
+        // which byte we are modifying in the header
+        posMod = 2;
+        // mask to clear the bit we're modifying
+        coverMask = 0b11111110;
+                    
+        frames = frameCount(cover);
+        System.out.printf("Message size is %d. Bytes available is %d\n",toHide.length, frames*3/8);
+
+        
         //Check if the data will fit in the cover
-        if((toHide.length*8)+32> frameCount(cover)*3){
+        if((toHide.length*8)+(32*8)> frames*3){
             System.out.println("File too long to hide");
             java.lang.System.exit(0);
         }
-        //Store the length in a byte array
+        //Store the message length in a byte array
         byte[] messLenArray = {
             (byte)((data >> 24) & 0xff),
             (byte)((data >> 16) & 0xff),
             (byte)((data >> 8) & 0xff),
             (byte)(data & 0xff),
         };
-        targInd = 0; //Where in the message are we
+        messInd = 0; //Where in the message are we
         
         //pos is the position of a frame header, 
-        //We hide a bit in the 3rd byte of a frame header
+        //We hide 3 bits per frame header
         pos = findFirstHeader(cover);
         
         //Copy each byte of the message size into the file bit by bit
         for(int j = 0; j < 4; j++){ // fixed 4 bytes for message size
             for(int k = 0; k < 8; k++){
                 insertBit = (byte) (messLenArray[j] & (byte) 1);
-                cover[pos+2] = (byte) ((cover[pos+2] & 254) | (insertBit)<<0); //hide
+                cover[pos+posMod] = (byte) ((cover[pos+posMod] & coverMask) | (insertBit)<<shift); //hide
                 messLenArray[j] = (byte) (messLenArray[j] >> 1);
-                pos = findNextFrame(cover, pos); //next frame header
+                pos = findNextFrame(cover, pos);
             }
-            
         }
         
-        //These help determine which bit is set
-        pass = 1;
-        shift = 0; 
-        posMod = 2;
-        while(targInd <toHide.length){
-            messageByte = toHide[targInd];
-            for(i=0;i<8;i++){
-                // get the next bit of the message
-                insertBit = (byte) (messageByte & 1); //0x00000001
-
-                // prepare the massage byte to extract the next bit
-                messageByte = (byte) (messageByte >> 1);
-
-                // insert the first 7 bits of the original file + 1 bit of the message
-                cover[pos+posMod] = (byte) ((cover[pos+2] & 254) | (insertBit)<<shift); //hide
-                pos = findNextFrame(cover, pos); //next frame header
-                //This stuff handles the positioning of the bit
-                if(pos == -1){
-                    if(pass == 1){
-                        pos = findFirstHeader(cover);//Sart at the beginning of the file
-                        shift = 2; //leftshift 3, original bit 
-                        posMod = 3; //last byte of header
-                        pass = 2;
-                    }
-                    if(pass == 2){
-                        pos = findFirstHeader(cover);//Sart at the beginning of the file
-                        shift = 3; //leftshift 3, original bit 
-                        posMod = 3; //last byte of header
-                        pass = 3;
-                    }
-                    if(pass == 3){
-                        java.lang.System.exit(0); //somethings gone wrong, we need to exit
-                    }
-                }
+        i = 0;
+        // pass over the data 3 times to hide our data. each time we use a different bit
+        for(pass = 1; pass <= 3; pass++){
+            switch(pass){
+                case 1:
+                    shift = 0; // first bit from the right
+                    posMod = 2; // third bit in the header
+                    coverMask = 0b11111110;
+                    break;
+                case 2:
+                    pos = findFirstHeader(cover);
+                    shift = 2; // third bit from the right
+                    posMod = 3; //last byte of header
+                    coverMask = 0b11111011;
+                    break;
+                case 3:
+                    pos = findFirstHeader(cover);
+                    shift = 3; // fourth bit from the right
+                    posMod = 3; //last byte of header
+                    coverMask = 0b11110111;
+                    break;
             }
-            targInd++;
-            //This stuff handles the positioniong of the bit
-            if(pos == -1){
-                if(pass == 1){
-                    pos = findFirstHeader(cover);//Sart at the beginning of the file
-                    shift = 2; //leftshift 3, original bit 
-                    posMod = 3; //last byte of header
-                    pass = 2;
+            
+            // hide each bit into the approtriate slot in each header
+            // if you reach the end of the cover file, restart passing over a different bit
+            while(messInd < toHide.length){
+                // this makes sure we dont corrupt any data when 
+                // we start new pass in the middle of a byte,
+                if(i == 0){
+                    messageByte = toHide[messInd];
                 }
-                if(pass == 2){
-                    pos = findFirstHeader(cover);//Sart at the beginning of the file
-                    shift = 3; //leftshift 3, original bit 
-                    posMod = 3; //last byte of header
-                    pass = 3;
+                while(i < 8){
+                    // get the next bit of the message
+                    insertBit = (byte) (messageByte & 1);
+
+                    // prepare the massage byte to extract the next bit
+                    messageByte = (byte) (messageByte >> 1);
+
+                    // insert the first 7 bits of the original file + 1 bit of the message
+                    cover[pos+posMod] = (byte) ((cover[pos+posMod] & coverMask) | ((insertBit)<<shift));
+                    pos = findNextFrame(cover, pos);
+                    i++;
+                    // break if we reach the end of the cover file
+                    if(pos == -1){
+                        break;
+                    }
                 }
-                if(pass == 3){
-                    java.lang.System.exit(0); //somethings gone wrong, we need to exit
+                if(pos == -1){
+                    break;
                 }
+                i = 0;
+
+                messInd++;
             }
         }
         return cover;        
@@ -320,8 +297,19 @@ public class mp3Handler extends OpenStegoPlugin {
         byte extractedByte, messageByte;
         long size;
         
+        // the current byte of the message being constructed
+        messageByte = 0;
+        
+        // how far in the the bit is from the left that we are modifying
+        shift = 0;
+        // which byte we are modifying in the header
+        posMod = 2;
+        
+        // used for building the size of the message to be constructed
         sizeByte = 0;
         size = 0;
+        
+        // the index of the message we are constructing
         messInd = 0;
         
         //pos is the position of a frame header, 
@@ -335,76 +323,61 @@ public class mp3Handler extends OpenStegoPlugin {
                 tempByte = (extractedByte & 1);
                 tempByte = (tempByte << k);
                 sizeByte = (tempByte | sizeByte);
-                pos = findNextFrame(cover, pos); //next frame header
-                //System.out.println( Math.abs(sizeByte) << (j*8));
+
+                pos = findNextFrame(cover, pos);
             }
             size = size | (Math.abs(sizeByte) << (j*8));
-            //sizeByte = 0;
-            //System.out.printf("size is %s\n", size);
-
         }   
-        pass = 1;
-        shift = 0;
-        posMod = 2;
+        
+        i = 0;
         byte[] output = new byte[(int) size];
-        System.out.println(size);
-        //size = 0;//kill here
-        while(messInd < size){
-            //messageOutput.seek(messInd);
-
-            //coverFile.seek(targInd);
-            messageByte = 0; // 0x00000000
-
-            // reconstruct 1 message byte out of 8 cover file bytes
-            for(i = 0; i <8; i++){
-                //System.out.printf("%x\n", pos);
-                extractedByte = cover[pos+posMod];
-                tempByte = (byte) (extractedByte & (byte) 1<<shift);
-                tempByte = (byte) (tempByte >>shift);//we want to move the bit to the end
-                tempByte = (byte) (tempByte << i);
-                messageByte = (byte) (tempByte | messageByte);
-                pos = findNextFrame(cover, pos); //next frame header
-                if(pos == -1){
-                      if(pass == 1){
-                          pos = findFirstHeader(cover);//Sart at the beginning of the file
-                          shift = 2; //leftshift 3, original bit 
-                          posMod = 3; //last byte of header
-                          pass = 2;
-                      }
-                      if(pass == 2){
-                          pos = findFirstHeader(cover);//Sart at the beginning of the file
-                          shift = 3; //leftshift 3, original bit 
-                          posMod = 3; //last byte of header
-                          pass = 3;
-                      }
-                      if(pass == 3){
-                          java.lang.System.exit(0); //somethings gone wrong, we need to exit
-                      }
-                  }                
+        // pass over the data 3 times to hide our data. each time we use a different bit
+        for(pass = 1; pass <= 3; pass++){
+            switch(pass){
+                case 1:
+                    shift = 0; // first bit from the right
+                    posMod = 2; // third byte in the header
+                    break;
+                case 2:
+                    pos = findFirstHeader(cover);
+                    shift = 2; // third bit from the right
+                    posMod = 3; //last byte of header
+                    break;
+                case 3:
+                    pos = findFirstHeader(cover);
+                    shift = 3; // fourth bit from the right
+                    posMod = 3; //last byte of header
+                    break;
             }
-            //messageOutput.write(messageByte);
-            output[messInd] = messageByte;
-            //System.out.printf("output byte is %s\n", output);
-            messInd++;
-            if(pos == -1){
-                 if(pass == 1){
-                     pos = findFirstHeader(cover);//Sart at the beginning of the file
-                     shift = 2; //leftshift 3, original bit 
-                     posMod = 3; //last byte of header
-                     pass = 2;
-                 }
-                 if(pass == 2){
-                     pos = findFirstHeader(cover);//Sart at the beginning of the file
-                     shift = 3; //leftshift 3, original bit 
-                     posMod = 3; //last byte of header
-                     pass = 3;
-                 }
-                 if(pass == 3){
-                     java.lang.System.exit(0); //somethings gone wrong, we need to exit
-                 }
-             }           
-        }
 
+            // find each bit into the approtriate slot in each header.
+            // if you reach the end of the cover file, restart passing over a different bit
+            while(messInd < size){
+                // this makes sure we dont corrupt any data when 
+                // we start new pass in the middle of a byte,
+                if(i == 0){
+                    messageByte = 0;
+                }
+                while(i < 8){
+                    extractedByte = cover[pos+posMod];
+                    tempByte = (byte) (extractedByte & (byte) 1<<shift);
+                    tempByte = (byte) (tempByte >>shift);//we want to move the bit to the end
+                    tempByte = (byte) (tempByte << i);
+                    messageByte = (byte) (tempByte | messageByte);
+                    pos = findNextFrame(cover, pos);
+                    i++;
+                    if(pos == -1){
+                        break;
+                    }
+                }
+                if(pos == -1){
+                    break;
+                }
+                i = 0;
+                output[messInd] = messageByte;
+                messInd++;
+            }
+        }
         return output;
     }
 
