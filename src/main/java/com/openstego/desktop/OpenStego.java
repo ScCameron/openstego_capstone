@@ -26,6 +26,9 @@ import com.openstego.desktop.util.LabelUtil;
 import com.openstego.desktop.util.PluginManager;
 import com.openstego.desktop.util.UserPreferences;
 
+import com.openstego.desktop.plugin.aud.AudioPlugin;
+import com.openstego.desktop.plugin.aud.mp3Handler;
+
 /**
  * This is the main class for OpenStego. It includes the {@link #main(String[])} method which provides the
  * command line interface for the tool. It also has API methods which can be used by external programs
@@ -432,21 +435,10 @@ public class OpenStego {
             // Initialize preferences
             UserPreferences.init();
             
-
-            // test text
-            //String[] arguments = {"embed", "-a", "AudioLSB", "-mf", "test_files\\testTextInput.txt", "-cf", "test_files\\square.wav", "-sf", "test_files\\stegRes.wav", "-e", "-p", "pass"};
-            //String[] arguments = {"extract", "-a", "AudioLSB", "-sf", "test_files\\stegRes.wav", "-xd", "test_files", "-xf", "output.txt", "-e", "-p", "pass"};
-            
-            // test audio file
-            //String[] arguments = {"embed", "-a", "AudioLSB", "-mf", "test_files\\testInput.mp3", "-cf", "test_files\\sample.wav", "-sf", "test_files\\stegRes.wav", "-e", "-p", "pass"};
-            //String[] arguments = {"extract", "-a", "AudioLSB", "-sf", "test_files\\stegRes.wav", "-xd", "test_files", "-xf", "output.mp3", "-e", "-p", "pass"};
-            
-            //args = arguments;
-            
             if (args.length == 0) { // Start GUI
                 try {
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                } catch (Exception e) {
+                } catch (Exception e) { 
                     // Ignore
                 }
                 new OpenStegoUI().setVisible(true);

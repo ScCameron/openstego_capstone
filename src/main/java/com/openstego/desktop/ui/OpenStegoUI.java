@@ -52,7 +52,7 @@ public class OpenStegoUI extends OpenStegoFrame {
     private static final int READ_EXTENSIONS = 1;
     private static final int WRITE_EXTENSIONS = 2;
     private static final String SIG_FILE_EXTENSION = ".sig";
-
+    
     /**
      * LabelUtil instance to retrieve labels
      */
@@ -255,12 +255,9 @@ public class OpenStegoUI extends OpenStegoFrame {
                         }
                     }
 
-                    processCount++;
-                    stegoData = openStego.embedData(dataFileName == null || dataFileName.equals("") ? null : new File(dataFileName), cvrFile,
-                        outputFileName);
-                    CommonUtil.writeFile(stegoData, outputFileName);
+                    processCount++;                    
                 }
-
+                    
                 return new Integer[] { processCount, skipCount };
             }
 
@@ -1137,5 +1134,5 @@ public class OpenStegoUI extends OpenStegoFrame {
                 return this.filterDesc;
             }
         }
-    }
+    }  
 }
