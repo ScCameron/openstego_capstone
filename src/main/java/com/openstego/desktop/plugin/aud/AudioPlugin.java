@@ -11,7 +11,6 @@ import com.openstego.desktop.OpenStegoConfig;
 import com.openstego.desktop.OpenStegoException;
 import com.openstego.desktop.OpenStegoPlugin;
 import com.openstego.desktop.plugin.lsb.LSBConfig;
-import com.openstego.desktop.plugin.lsb.LSBEmbedOptionsUI;
 import com.openstego.desktop.ui.OpenStegoUI;
 import com.openstego.desktop.ui.PluginEmbedOptionsUI;
 import com.openstego.desktop.util.LabelUtil;
@@ -19,10 +18,11 @@ import com.openstego.desktop.util.cmd.CmdLineOptions;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Random;
 
 
 /**
- *
+ * Plugin for audio steganography using LSB method on uncompressed .wav files
  * @author Patrick and Scott
  */
 public class AudioPlugin extends OpenStegoPlugin {
@@ -30,9 +30,18 @@ public class AudioPlugin extends OpenStegoPlugin {
      * Constant for Namespace to use for this plugin
      */
     public final static String NAMESPACE = "AudioLSB";
-    int byteSpread = 2; // number of bytes between each insert. 1 generates strange noises
-    int targInd = 112; // the byte start point of the message in the cover file
+    int byteSpread = 2; // number of bytes between each insert. Is changed dynamically
+    int startTargInd = 112; // the byte start point of the message in the cover file. MUST be even to align with WAV bytes
+    int targInd = startTargInd;
     
+    // only insert a bit if the byte is larger than this (in the positive or negative direction) and is considered a quality byte
+    // lower means more message data density but more artifacting.
+    // number MUST be even.
+    // If cover file does not have enough bytes within threshold, the threshold will
+    // be lowered to 0 and the user will be informed
+    int byteSizeThreshold = 40; 
+    
+    //String password;
     
     /**
      * LabelUtil instance to retrieve labels
@@ -75,10 +84,58 @@ public class AudioPlugin extends OpenStegoPlugin {
      */
     @Override
     public String getDescription(){
-        return "TODO";
+        return "Embed and extract message files from .wav audio files";
     }
     
+    /**
+     * Embed and extract helper function to figure out how much to spread the data
+     * in the cover file
+     * @param count the number of usable bytes in the cover/stego file
+     * @param length the size of the message in bytes
+     * @return @return The maximum number of bytes between each inserted bit
+     */
+    private int getSpread(int count, int length){
+        float density = count / (length * 8);
+        int spread = 2;
+        
+        // increase how the message is spread in the cover file
+        // until it spreads out over roughly the whole file
+        while(density > spread){
+            spread *= 2;
+        }
+        
+        return spread;
+    }
+    
+    /**
+     * find the number of usable bytes in a cover/stego file
+     * @param file the cover/stego file
+     * @param msgSize the size of the message being embedded/retrieved
+     * @return the number of usable bytes
+     */
+    private int findUsableBytes(byte[] file, int msgSize){
+        int count = 0;
 
+        for(int i = startTargInd; i < file.length - startTargInd; i+=2){
+            if(file[i] >= byteSizeThreshold || file[i] < -1*byteSizeThreshold) {
+                count++;
+            }
+        }
+        
+        // if there arent enough bytes, lower the insert byte threshold and search for more bytes
+        if(msgSize * 8 > count){
+            System.out.println("Not enough quality bytes, lowering threshold. This may make it easier to detect stego data");
+            count = 0;
+            byteSizeThreshold = 0;
+            for(int i = startTargInd; i < file.length - startTargInd; i+=2){
+                if(file[i] >= byteSizeThreshold || file[i] < -1*byteSizeThreshold) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
     
     // ------------- Core Stego Methods -------------
 
@@ -92,21 +149,22 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @param coverFileName Name of the cover file
      * @param stegoFileName Name of the output stego file
      * @return Stego data containing the message
-     * @throws OpenStegoException
      */
     @Override
     public byte[] embedData(byte[] msg, String msgFileName, byte[] cover, String coverFileName, String stegoFileName) {
-        int messInd = 0;
-
-        if(cover.length < msg.length  * 8 * byteSpread ){
+        int messInd = 0; // index of current message byte being processed
+        int count = findUsableBytes(cover, msg.length); // number of usable bytes in cover file
+        
+        System.out.printf("%d bytes are able to be inserted\n", count/8);
+        // check for message length
+        if(msg.length * 8 > count){
             System.out.println("Message too long");
             java.lang.System.exit(0);
         }
         byte messageByte, insertBit;
-
-        /*Insert the message length*/
+        
+        // Insert the message length
         long data = msg.length;
-        System.out.println(msg.length);
         //Store the length in a byte array
         byte[] messLenArray ={
             (byte)((data >> 24) & 0xff),
@@ -114,36 +172,49 @@ public class AudioPlugin extends OpenStegoPlugin {
             (byte)((data >> 8) & 0xff),
             (byte)(data & 0xff),
         };
+        
+        // set the rng seed to the hash of the encryption password
+        int seed = config.getPassword().hashCode();
+        // RNG used to jump pseudorandom number of bytes ahead to spread data secretly
+        Random rand = new Random(seed);
 
         //Copy each byte of the message size into the file bit by bit
         for(int j = 0; j < 4; j++){ // fixed 4 bytes for message size
             for(int k = 0; k < 8; k++){
+                // if the current cover file byte is not a quality byte, jump randomly until you find a quality byte
+                while(cover[targInd] < byteSizeThreshold && cover[targInd] >= -1*byteSizeThreshold){
+                    targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
+                }
                 insertBit = (byte) (messLenArray[j] & (byte) 1);
                 cover[targInd] = (byte) ((cover[targInd] & 254) | insertBit);
                 messLenArray[j] = (byte) (messLenArray[j] >> 1);
                 targInd += byteSpread;
             }
         }
-
+        
+        byteSpread = getSpread(count, msg.length);
+        
         // For every byte in the message
         while(messInd < msg.length){
-            //rafR.seek(messInd);
             messageByte = msg[messInd];
             messInd++;
 
             // For every bit in the message byte, insert it into the
             // resulting file starting from the smallest bit and working to
             // the largest
-            for(int i = 0; i <8; i++){
+            for(int i = 0; i < 8; i++){
                 // get the next bit of the message
                 insertBit = (byte) (messageByte & 1); //0x00000001
 
                 // prepare the massage byte to extract the next bit
                 messageByte = (byte) (messageByte >> 1);
 
-                // insert the first 7 bits of the original file + 1 bit of the message
+                // if the current cover file byte is not a quality byte, jump randomly until you find a quality byte
+                while(cover[targInd] < byteSizeThreshold && cover[targInd] >= -1*byteSizeThreshold){
+                    targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
+                }
                 cover[targInd] = (byte) ((cover[targInd] & 254) | insertBit);
-                targInd += byteSpread;
+                targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
             } 
         }
         return cover;
@@ -159,7 +230,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      */
     @Override
     public String extractMsgFileName(byte[] stegoData, String stegoFileName) throws OpenStegoException {
-        return "testOutput.mp3";
+        return "output.file";
     }
 
     /**
@@ -173,49 +244,79 @@ public class AudioPlugin extends OpenStegoPlugin {
      */
     @Override
     public byte[] extractData(byte[] stegoData, String stegoFileName, byte[] origSigData) throws OpenStegoException {
+        // the current message index being processed
         int messInd = 0;
-        
         byte extractedByte, messageByte;
         
-
-        int size = 0;
+        int size = 0; // size of message
         int tempByte;
         int sizeByte = 0;
+        
+        // set the rng seed to the hash of the encryption password
+        int seed = config.getPassword().hashCode();
+        // RNG used to jump pseudorandom number of bytes ahead to extract the spread data
+        Random rand = new Random(seed);
+        
         // get the size of the message
-        for(int j = 3; j >=0; j--){
-            for(int k = 0; k <8; k++){
-
-                extractedByte = stegoData[targInd];
-                tempByte = (extractedByte & 1);
-                tempByte = (tempByte << k);
-                sizeByte = (tempByte | sizeByte);
-                targInd += byteSpread;
+        // because we cant get the byte size threshhold properly without having the message size first,
+        // we assume it is the default value. If we get an index out of bounds error, we know it must be reduced
+        while(true){
+            try{
+                rand = new Random(seed);
+                targInd = startTargInd;
+                size = 0;
+                sizeByte = 0;
+                // reconstruct the 4 bytes that indicate message size
+                for(int j = 3; j >=0; j--){
+                    for(int k = 0; k <8; k++){
+                        // if the current stego file byte is not a quality byte, jump randomly until you find a quality byte
+                        while(stegoData[targInd] < byteSizeThreshold && stegoData[targInd] >= -1*byteSizeThreshold){
+                            targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
+                        }
+                        extractedByte = stegoData[targInd];
+                        tempByte = (extractedByte & 1);
+                        tempByte = (tempByte << k);
+                        sizeByte = (tempByte | sizeByte);
+                        targInd += byteSpread;
+                    }
+                    size = size | (Math.abs(sizeByte) << (j*8));
+                }
+                break;
             }
-            size = size | (Math.abs(sizeByte) << (j*8));
+            catch(ArrayIndexOutOfBoundsException e){
+                if(byteSizeThreshold == 0){
+                    System.out.println("This stego file can't seem to hold a message");
+                    java.lang.System.exit(0);
+                }
+                byteSizeThreshold = 0;
+            }
         }
         
         byte[] output = new byte[(int) size];
-
+        int count = findUsableBytes(stegoData, size);
+        byteSpread = getSpread(count, size);
+        
+        // reconstruct the message bit by bit
         while(messInd < size){
-            //messageOutput.seek(messInd);
-
-            //coverFile.seek(targInd);
             messageByte = 0; // 0x00000000
 
             // reconstruct 1 message byte out of 8 cover file bytes
             for(int i = 0; i <8; i++){
+                // if the current cover file byte is not a quality byte, jump randomly until you find a quality byte
+                while(stegoData[targInd] < byteSizeThreshold && stegoData[targInd] >= -1*byteSizeThreshold){
+                    targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
+                }
                 extractedByte = stegoData[targInd];
                 tempByte = (byte) (extractedByte & (byte) 1);
                 tempByte = (byte) (tempByte << i);
                 messageByte = (byte) (tempByte | messageByte);
 
-                targInd += byteSpread;
+                targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
             }
-            //messageOutput.write(messageByte);
             output[messInd] = messageByte;
+            
             messInd++;
         }
-
         return output;
     }
 
@@ -228,9 +329,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      */
     @Override
     public byte[] generateSignature() throws OpenStegoException {
-        // dummy code to fill the method
-        byte[] b = new byte[1];
-        return b;
+        return null;
     }
 
 
@@ -244,7 +343,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @throws OpenStegoException
      */
     public double getWatermarkCorrelation(byte[] origSigData, byte[] watermarkData) throws OpenStegoException {
-        return 0.0;
+        return 0;
     }
 
     /**
@@ -254,7 +353,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @throws OpenStegoException
      */
     public double getHighWatermarkLevel() throws OpenStegoException {
-        return 0.0;
+        return 0;
     }
 
     /**
@@ -264,7 +363,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @throws OpenStegoException
      */
     public double getLowWatermarkLevel() throws OpenStegoException {
-        return 0.0;
+        return 0;
     }
                   
     /**
@@ -279,9 +378,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @throws OpenStegoException
      */
     public byte[] getDiff(byte[] stegoData, String stegoFileName, byte[] coverData, String coverFileName, String diffFileName) {
-        // dummy code to fill the method
-        byte[] b = new byte[1];
-        return b;
+        return null;
     }
 
     /**
@@ -291,7 +388,6 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return Boolean indicating whether the stego data can be handled by this plugin or not
      */
     public boolean canHandle(byte[] stegoData) {
-        // dummy code to fill the method
         return true;
     }
 
@@ -302,10 +398,9 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @throws OpenStegoException
      */
     public List<String> getReadableFileExtensions() throws OpenStegoException {
-        // dummy code to fill the method
-        List<String> dummy = new ArrayList<String>();
-        dummy.add("dummy0");
-        return dummy;
+        List<String> extensions = new ArrayList<String>();
+        extensions.add("wav");
+        return extensions;
     }
 
     /**
@@ -315,10 +410,9 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @throws OpenStegoException
      */
     public List<String> getWritableFileExtensions() throws OpenStegoException {
-        // dummy code to fill the method
-        List<String> dummy = new ArrayList<String>();
-        dummy.add("dummy0");
-        return dummy;        
+        List<String> extensions = new ArrayList<String>();
+        extensions.add("wav");
+        return extensions;      
     }
 
     // ------------- Command-line Related Methods -------------
@@ -339,7 +433,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @throws OpenStegoException
      */
     public String getUsage() throws OpenStegoException {
-        return "dummy usage message";
+        return "This plugin uses the default OpenStego command line options";
     }
 
     // ------------- GUI Related Methods -------------
@@ -353,8 +447,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @throws OpenStegoException
      */
     public PluginEmbedOptionsUI getEmbedOptionsUI(OpenStegoUI stegoUI) throws OpenStegoException {
-         // dummy code to fill the method
-        return new LSBEmbedOptionsUI(stegoUI);
+        return null;
     }
 
     // ------------- Other Methods -------------
@@ -365,7 +458,6 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return Configuration class specific to this plugin
      */
     public Class<? extends OpenStegoConfig> getConfigClass() {
-        // dummy code to fill the method
         return LSBConfig.class;
     }
 
