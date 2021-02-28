@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
 
+
 /**
  * Plugin for audio steganography using LSB method on uncompressed .wav files
  * @author Patrick and Scott
@@ -154,7 +155,7 @@ public class AudioPlugin extends OpenStegoPlugin {
         int messInd = 0; // index of current message byte being processed
         int count = findUsableBytes(cover, msg.length); // number of usable bytes in cover file
         
-        System.out.printf("%d bytes are able to be inserted\n", count/8);
+        System.out.printf("Message size is %d bytes. %d bytes are able to be inserted\n", msg.length, count/8);
         // check for message length
         if(msg.length * 8 > count){
             System.out.println("Message too long");
@@ -216,6 +217,7 @@ public class AudioPlugin extends OpenStegoPlugin {
                 targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
             } 
         }
+        System.out.println("Done Embedding");
         return cover;
     }
 
@@ -318,7 +320,7 @@ public class AudioPlugin extends OpenStegoPlugin {
         }
         return output;
     }
-
+    
     /**
      * Method to generate the signature data. This method needs to be implemented only if the purpose of the plugin is
      * Watermarking
