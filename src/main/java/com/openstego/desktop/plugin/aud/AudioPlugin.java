@@ -155,7 +155,7 @@ public class AudioPlugin extends OpenStegoPlugin {
         int messInd = 0; // index of current message byte being processed
         int count = findUsableBytes(cover, msg.length); // number of usable bytes in cover file
         
-        System.out.printf("%d bytes are able to be inserted\n", count/8);
+        System.out.printf("Message size is %d bytes. %d bytes are able to be inserted\n", msg.length, count/8);
         // check for message length
         if(msg.length * 8 > count){
             System.out.println("Message too long");
@@ -217,6 +217,7 @@ public class AudioPlugin extends OpenStegoPlugin {
                 targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
             } 
         }
+        System.out.println("Done Embedding");
         return cover;
     }
 
@@ -319,7 +320,7 @@ public class AudioPlugin extends OpenStegoPlugin {
         }
         return output;
     }
-
+    
     /**
      * Method to generate the signature data. This method needs to be implemented only if the purpose of the plugin is
      * Watermarking
@@ -342,6 +343,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return Correlation
      * @throws OpenStegoException
      */
+    @Override
     public double getWatermarkCorrelation(byte[] origSigData, byte[] watermarkData) throws OpenStegoException {
         return 0;
     }
@@ -352,6 +354,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return High watermark
      * @throws OpenStegoException
      */
+    @Override
     public double getHighWatermarkLevel() throws OpenStegoException {
         return 0;
     }
@@ -362,6 +365,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return Low watermark
      * @throws OpenStegoException
      */
+    @Override
     public double getLowWatermarkLevel() throws OpenStegoException {
         return 0;
     }
@@ -377,6 +381,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return Difference data
      * @throws OpenStegoException
      */
+    @Override
     public byte[] getDiff(byte[] stegoData, String stegoFileName, byte[] coverData, String coverFileName, String diffFileName) {
         return null;
     }
@@ -387,6 +392,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @param stegoData Stego data containing the message
      * @return Boolean indicating whether the stego data can be handled by this plugin or not
      */
+    @Override
     public boolean canHandle(byte[] stegoData) {
         return true;
     }
@@ -397,6 +403,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return List of supported file extensions for reading
      * @throws OpenStegoException
      */
+    @Override
     public List<String> getReadableFileExtensions() throws OpenStegoException {
         List<String> extensions = new ArrayList<String>();
         extensions.add("wav");
@@ -409,6 +416,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return List of supported file extensions for writing
      * @throws OpenStegoException
      */
+    @Override
     public List<String> getWritableFileExtensions() throws OpenStegoException {
         List<String> extensions = new ArrayList<String>();
         extensions.add("wav");
@@ -423,6 +431,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @param options Existing command-line options. Plugin-specific options will get added to this list
      * @throws OpenStegoException
      */
+    @Override
     public void populateStdCmdLineOptions(CmdLineOptions options) throws OpenStegoException {
     }
 
@@ -432,6 +441,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return Usage details of the plugin
      * @throws OpenStegoException
      */
+    @Override
     public String getUsage() throws OpenStegoException {
         return "This plugin uses the default OpenStego command line options";
     }
@@ -446,6 +456,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @return UI object specific to this plugin for "Embed" action
      * @throws OpenStegoException
      */
+    @Override
     public PluginEmbedOptionsUI getEmbedOptionsUI(OpenStegoUI stegoUI) throws OpenStegoException {
         return null;
     }
@@ -457,6 +468,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      *
      * @return Configuration class specific to this plugin
      */
+    @Override
     public Class<? extends OpenStegoConfig> getConfigClass() {
         return LSBConfig.class;
     }
