@@ -5,7 +5,6 @@
  */
 package com.openstego.desktop.plugin.aud;
 
-import java.lang.*;
 import com.openstego.desktop.OpenStegoConfig;
 import com.openstego.desktop.OpenStegoException;
 import com.openstego.desktop.OpenStegoPlugin;
@@ -19,7 +18,7 @@ import java.util.List;
 
 /**
  *
- * @author Patrick
+ * @author Patrick and Scott
  * Citation: mp3Stegz: https://sourceforge.net/projects/mp3stegz/
  */
 public class mp3Handler extends OpenStegoPlugin {
@@ -116,7 +115,7 @@ public class mp3Handler extends OpenStegoPlugin {
         result = -1; //If we failed to find the next frame (reach end of file)
         
         //Loop through looking for the next frame
-        while(pos < audioFile.length){
+        while(pos < audioFile.length-1){
             // Check specific bits to see if it is a mp3 header
             // help with header algorith from https://www.allegro.cc/forums/thread/591512/674023#target
             if(audioFile[pos] == (byte)0xff && ((audioFile[pos+1]>>5)&(byte)0x7) == (byte)0x7 &&
@@ -178,11 +177,11 @@ public class mp3Handler extends OpenStegoPlugin {
         coverMask = 0b11111110;
                     
         frames = frameCount(cover);
-        System.out.printf("Message size is %d. Bytes available is %d\n",toHide.length, frames*3/8);
+        System.out.printf("Message size is %d Bytes. %d bytes are able to be inserted\n",toHide.length, (frames*3/8) - 4);
 
         
         //Check if the data will fit in the cover
-        if((toHide.length*8)+(32*8)> frames*3){
+        if((toHide.length*8)+(4*8)> frames*3){
             System.out.println("File too long to hide");
             java.lang.System.exit(0);
         }
@@ -264,6 +263,7 @@ public class mp3Handler extends OpenStegoPlugin {
                 messInd++;
             }
         }
+        System.out.println("Done Embedding");
         return cover;        
     }
     

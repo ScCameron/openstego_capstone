@@ -26,8 +26,6 @@ import com.openstego.desktop.util.LabelUtil;
 import com.openstego.desktop.util.PluginManager;
 import com.openstego.desktop.util.UserPreferences;
 
-import com.openstego.desktop.plugin.aud.AudioPlugin;
-import com.openstego.desktop.plugin.aud.mp3Handler;
 
 /**
  * This is the main class for OpenStego. It includes the {@link #main(String[])} method which provides the
