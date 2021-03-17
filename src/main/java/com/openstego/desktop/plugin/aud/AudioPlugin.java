@@ -39,7 +39,7 @@ public class AudioPlugin extends OpenStegoPlugin {
     // number MUST be even.
     // If cover file does not have enough bytes within threshold, the threshold will
     // be lowered to 0 and the user will be informed
-    int byteSizeThreshold = 40; 
+    int byteSizeThreshold = 2; 
     
     //String password;
     
@@ -174,7 +174,14 @@ public class AudioPlugin extends OpenStegoPlugin {
         };
         
         // set the rng seed to the hash of the encryption password
-        int seed = config.getPassword().hashCode();
+        int seed;
+        if(config.getPassword() == null){
+            seed = 1234;
+        }
+        else{
+            seed = config.getPassword().hashCode();
+        }
+        
         // RNG used to jump pseudorandom number of bytes ahead to spread data secretly
         Random rand = new Random(seed);
 
@@ -254,7 +261,13 @@ public class AudioPlugin extends OpenStegoPlugin {
         int sizeByte = 0;
         
         // set the rng seed to the hash of the encryption password
-        int seed = config.getPassword().hashCode();
+        int seed;
+        if(config.getPassword() == null){
+            seed = 1234;
+        }
+        else{
+            seed = config.getPassword().hashCode();
+        }
         // RNG used to jump pseudorandom number of bytes ahead to extract the spread data
         Random rand = new Random(seed);
         
@@ -263,7 +276,7 @@ public class AudioPlugin extends OpenStegoPlugin {
         // we assume it is the default value. If we get an index out of bounds error, we know it must be reduced
         while(true){
             try{
-                rand = new Random(seed);
+                //rand = new Random(seed);
                 targInd = startTargInd;
                 size = 0;
                 sizeByte = 0;
@@ -420,6 +433,7 @@ public class AudioPlugin extends OpenStegoPlugin {
     public List<String> getWritableFileExtensions() throws OpenStegoException {
         List<String> extensions = new ArrayList<String>();
         extensions.add("wav");
+        extensions.add("yuv");
         return extensions;      
     }
 
