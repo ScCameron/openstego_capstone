@@ -32,10 +32,10 @@ public class vidHandler {
         
         try {
             //Video to raw
-            Runtime.getRuntime().exec("cmd /c ffmpeg -i " + filename + " -c:v rawvideo -pix_fmt rgb24 " + tmpPath + "raw.yuv");
+            Runtime.getRuntime().exec("cmd /c ffmpeg -i " + filename + " -c:v rawvideo -pix_fmt rgb24 raw.yuv");
             
             //Get audio
-            Runtime.getRuntime().exec("cmd /c ffmpeg -i "+filename+" "+tmpPath+"vidAu.mp3");
+            Runtime.getRuntime().exec("cmd /c ffmpeg -i "+filename + " vidAu.mp3");
             try {
                 // Store Resolution
                 p = Runtime.getRuntime().exec("cmd /c \"ffprobe -v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate " + filename);         
@@ -66,8 +66,8 @@ public class vidHandler {
      */
     public void toMP4() {
         try {
-            //Video to raw
-            Runtime.getRuntime().exec("cmd /c start cmd.exe /k ffmpeg -f rawvideo -pix_fmt rgb24 -s:v "+res+" -i "+tmpPath+"raw.yuv -i "+tmpPath+"vidAu.mp3 -c:v libx264 -crf 0 "+tmpPath+"stegged.mp4");
+            //raw to mp4
+            Runtime.getRuntime().exec("cmd /c start cmd.exe /k ffmpeg -f rawvideo -pix_fmt rgb24 -s:v "+res+" -i raw.yuv -i vidAu.mp3 -c:v libx264 -crf 0 stegged.mp4");
         } catch (IOException ex) {
             Logger.getLogger(vidHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
