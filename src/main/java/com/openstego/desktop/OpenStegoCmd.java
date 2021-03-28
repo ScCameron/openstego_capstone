@@ -131,12 +131,13 @@ public class OpenStegoCmd {
                 }
             }
 
+            //System.out.println(plugin);
             if (command.equals("embed")) {
                 msgFileName = options.getOptionValue("-mf");
                 coverFileName = options.getOptionValue("-cf");
                 stegoFileName = options.getOptionValue("-sf");
                 
-                if(coverFileName.contains("mp4")){
+               if ("VideoStego".equals(pluginName)) {
                     vid.toRaw(coverFileName);
                     coverFileName = "raw.yuv";
                 }
@@ -156,8 +157,8 @@ public class OpenStegoCmd {
                     CommonUtil.writeFile(
                         stego.embedData((msgFileName == null || msgFileName.equals("-")) ? null : new File(msgFileName),
                             coverFileList.size() == 0 ? null : (File) coverFileList.get(0),
-                            (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName),
-                        (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName);
+                            (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName+".yuv"),
+                        (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName+".yuv");
                 }
                 // Else loop through all coverfiles and overwrite the same coverfiles with generated stegofiles
                 else {
@@ -175,11 +176,13 @@ public class OpenStegoCmd {
                         System.err.println(labelUtil.getString("cmd.msg.coverProcessed", coverFileName));
                     }
                 }
-                if(coverFileName.contains("yuv")){
-                    try{sleep(3000);
-                    } catch (Exception e){}
-                        vid.toMP4();  
-                    }
+                if ("VideoStego".equals(pluginName)) {
+                    vid.toMP4(stegoFileName);
+                    // we need to find a better solution for this
+                    sleep(3000);
+                    vid.cleanUp(stegoFileName);
+                }
+
             } else if (command.equals("embedmark")) {
                 sigFileName = options.getOptionValue("-gf");
                 coverFileName = options.getOptionValue("-cf");
@@ -223,12 +226,15 @@ public class OpenStegoCmd {
                     displayUsage();
                     return;
                 }
-                if(stegoFileName.contains("mp4")){
+                if ("VideoStego".equals(pluginName)) {
                     vid.toRaw(stegoFileName);
                     stegoFileName = "raw.yuv";
                 }
                 try {
                     msgData = stego.extractData(new File(stegoFileName));
+                    if ("VideoStego".equals(pluginName)) {
+                        vid.cleanUp(stegoFileName);
+                    }
                 } catch (OpenStegoException osEx) {
                     if (osEx.getErrorCode() == OpenStegoException.INVALID_PASSWORD || osEx.getErrorCode() == OpenStegoException.NO_VALID_PLUGIN) {
                         if (stego.getConfig().getPassword() == null) {
@@ -344,6 +350,7 @@ public class OpenStegoCmd {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        
     }
 
     /**
