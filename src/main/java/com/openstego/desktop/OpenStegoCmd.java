@@ -16,11 +16,14 @@ import com.openstego.desktop.util.cmd.CmdLineOption;
 import com.openstego.desktop.util.cmd.CmdLineOptions;
 import com.openstego.desktop.util.cmd.CmdLineParser;
 import com.openstego.desktop.util.cmd.PasswordInput;
+import com.openstego.desktop.plugin.vid.vidHandler;
+import static java.lang.Thread.sleep;
 
 /**
  * This is the main class for OpenStego command line
  */
 public class OpenStegoCmd {
+    static vidHandler vid = new vidHandler();
     /**
      * LabelUtil instance to retrieve labels
      */
@@ -132,7 +135,11 @@ public class OpenStegoCmd {
                 msgFileName = options.getOptionValue("-mf");
                 coverFileName = options.getOptionValue("-cf");
                 stegoFileName = options.getOptionValue("-sf");
-
+                
+                if(coverFileName.contains("mp4")){
+                    vid.toRaw(coverFileName);
+                    coverFileName = "raw.yuv";
+                }
                 // Check if we need to prompt for password
                 if (stego.getConfig().isUseEncryption() && stego.getConfig().getPassword() == null) {
                     stego.getConfig().setPassword(PasswordInput.readPassword(labelUtil.getString("cmd.msg.enterPassword") + " "));
@@ -168,6 +175,11 @@ public class OpenStegoCmd {
                         System.err.println(labelUtil.getString("cmd.msg.coverProcessed", coverFileName));
                     }
                 }
+                if(coverFileName.contains("yuv")){
+                    try{sleep(3000);
+                    } catch (Exception e){}
+                        vid.toMP4();  
+                    }
             } else if (command.equals("embedmark")) {
                 sigFileName = options.getOptionValue("-gf");
                 coverFileName = options.getOptionValue("-cf");
@@ -211,7 +223,10 @@ public class OpenStegoCmd {
                     displayUsage();
                     return;
                 }
-
+                if(stegoFileName.contains("mp4")){
+                    vid.toRaw(stegoFileName);
+                    stegoFileName = "raw.yuv";
+                }
                 try {
                     msgData = stego.extractData(new File(stegoFileName));
                 } catch (OpenStegoException osEx) {
