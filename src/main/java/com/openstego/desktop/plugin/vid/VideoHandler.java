@@ -30,8 +30,8 @@ public class VideoHandler extends OpenStegoPlugin {
      * Constant for Namespace to use for this plugin
      */
     public final static String NAMESPACE = "VideoStego";
-    int byteSpread = 2; // number of bytes between each insert. Is changed dynamically
-    int startTargInd = 112; // the byte start point of the message in the cover file. MUST be even to align with WAV bytes
+    int byteSpread = 1; // number of bytes between each insert. Is changed dynamically
+    int startTargInd = 0; // the byte start point of the message in the cover file. MUST be even to align with WAV bytes
     int targInd = startTargInd;
     
     // only insert a bit if the byte is larger than this (in the positive or negative direction) and is considered a quality byte
@@ -39,7 +39,7 @@ public class VideoHandler extends OpenStegoPlugin {
     // number MUST be even.
     // If cover file does not have enough bytes within threshold, the threshold will
     // be lowered to 0 and the user will be informed
-    int byteSizeThreshold = 2; 
+    int byteSizeThreshold = 0; 
     
     //String password;
     
@@ -104,7 +104,10 @@ public class VideoHandler extends OpenStegoPlugin {
             spread *= 2;
         }
         
-        return spread;
+        //return spread;
+        
+        //return (int) density;
+        return 1;
     }
     
     /**
@@ -116,7 +119,7 @@ public class VideoHandler extends OpenStegoPlugin {
     private int findUsableBytes(byte[] file, int msgSize){
         int count = 0;
 
-        for(int i = startTargInd; i < file.length - startTargInd; i+=2){
+        /*for(int i = startTargInd; i < file.length - startTargInd; i+=2){
             if(file[i] >= byteSizeThreshold || file[i] < -1*byteSizeThreshold) {
                 count++;
             }
@@ -132,9 +135,9 @@ public class VideoHandler extends OpenStegoPlugin {
                     count++;
                 }
             }
-        }
+        }*/
 
-        return count;
+        return file.length;
     }
     
     // ------------- Core Stego Methods -------------
@@ -174,24 +177,24 @@ public class VideoHandler extends OpenStegoPlugin {
         };
         
         // set the rng seed to the hash of the encryption password
-        int seed;
-        if(config.getPassword() == null){
-            seed = 1234;
-        }
-        else{
-            seed = config.getPassword().hashCode();
-        }
+        //int seed = 1234;
+//        if(config.getPassword() == null){
+//            seed = 1234;
+//        }
+//        else{
+//            seed = config.getPassword().hashCode();
+//        }
         
         // RNG used to jump pseudorandom number of bytes ahead to spread data secretly
-        Random rand = new Random(seed);
+        //Random rand = new Random(seed);
 
         //Copy each byte of the message size into the file bit by bit
         for(int j = 0; j < 4; j++){ // fixed 4 bytes for message size
             for(int k = 0; k < 8; k++){
                 // if the current cover file byte is not a quality byte, jump randomly until you find a quality byte
-                while(cover[targInd] < byteSizeThreshold && cover[targInd] >= -1*byteSizeThreshold){
+                /*while(cover[targInd] < byteSizeThreshold && cover[targInd] >= -1*byteSizeThreshold){
                     targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
-                }
+                }*/
                 insertBit = (byte) (messLenArray[j] & (byte) 1);
                 cover[targInd] = (byte) ((cover[targInd] & 254) | insertBit);
                 messLenArray[j] = (byte) (messLenArray[j] >> 1);
@@ -217,11 +220,28 @@ public class VideoHandler extends OpenStegoPlugin {
                 messageByte = (byte) (messageByte >> 1);
 
                 // if the current cover file byte is not a quality byte, jump randomly until you find a quality byte
-                while(cover[targInd] < byteSizeThreshold && cover[targInd] >= -1*byteSizeThreshold){
+                /*while(cover[targInd] < byteSizeThreshold && cover[targInd] >= -1*byteSizeThreshold){
                     targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
-                }
+                }*/
                 cover[targInd] = (byte) ((cover[targInd] & 254) | insertBit);
-                targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
+//                if(byteSpread == 1){
+//                    targInd += byteSpread;
+//                }
+//                else{
+//                    targInd += (rand.nextInt((byteSpread/2)) + 1) * 2;
+//                }
+                targInd += 1;//byteSpread;
+                //System.out.println(targInd);
+                
+                // if we pass the Y values
+//                if(targInd % 345600 < 230400){
+//                    targInd += 230400;
+//                }
+//                if (targInd >= cover.length){
+//                    targInd = targInd % cover.length + 1;
+//                }
+                
+                
             } 
         }
         System.out.println("Done Embedding");
@@ -261,15 +281,15 @@ public class VideoHandler extends OpenStegoPlugin {
         int sizeByte = 0;
         
         // set the rng seed to the hash of the encryption password
-        int seed;
-        if(config.getPassword() == null){
-            seed = 1234;
-        }
-        else{
-            seed = config.getPassword().hashCode();
-        }
+        int seed = 1234;
+//        if(config.getPassword() == null){
+//            seed = 1234;
+//        }
+//        else{
+//            seed = config.getPassword().hashCode();
+//        }
         // RNG used to jump pseudorandom number of bytes ahead to extract the spread data
-        Random rand = new Random(seed);
+        //Random rand = new Random(seed);
         
         // get the size of the message
         // because we cant get the byte size threshhold properly without having the message size first,
@@ -284,9 +304,9 @@ public class VideoHandler extends OpenStegoPlugin {
                 for(int j = 3; j >=0; j--){
                     for(int k = 0; k <8; k++){
                         // if the current stego file byte is not a quality byte, jump randomly until you find a quality byte
-                        while(stegoData[targInd] < byteSizeThreshold && stegoData[targInd] >= -1*byteSizeThreshold){
-                            targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
-                        }
+//                        while(stegoData[targInd] < byteSizeThreshold && stegoData[targInd] >= -1*byteSizeThreshold){
+//                            targInd += 1;//(rand.nextInt(byteSpread/2) + 1) * 2;
+//                        }
                         extractedByte = stegoData[targInd];
                         tempByte = (extractedByte & 1);
                         tempByte = (tempByte << k);
@@ -306,6 +326,7 @@ public class VideoHandler extends OpenStegoPlugin {
             }
         }
         
+        System.out.println(size);
         byte[] output = new byte[(int) size];
         int count = findUsableBytes(stegoData, size);
         byteSpread = getSpread(count, size);
@@ -317,15 +338,23 @@ public class VideoHandler extends OpenStegoPlugin {
             // reconstruct 1 message byte out of 8 cover file bytes
             for(int i = 0; i <8; i++){
                 // if the current cover file byte is not a quality byte, jump randomly until you find a quality byte
-                while(stegoData[targInd] < byteSizeThreshold && stegoData[targInd] >= -1*byteSizeThreshold){
-                    targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
-                }
+//                while(stegoData[targInd] < byteSizeThreshold && stegoData[targInd] >= -1*byteSizeThreshold){
+//                    targInd += 1;//(rand.nextInt(byteSpread/2) + 1) * 2;
+//                }
                 extractedByte = stegoData[targInd];
                 tempByte = (byte) (extractedByte & (byte) 1);
                 tempByte = (byte) (tempByte << i);
                 messageByte = (byte) (tempByte | messageByte);
 
-                targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
+                targInd += 1;//(rand.nextInt(byteSpread/2) + 1) * 2;
+                
+                // if we pass the Y values
+//                if(targInd % 345600 < 230400){
+//                    targInd += 230400;
+//                }
+                //if (targInd >= stegoData.length){
+                //    targInd = targInd % stegoData.length + 1;
+                //}
             }
             output[messInd] = messageByte;
             

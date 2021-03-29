@@ -427,8 +427,8 @@ public class OpenStego {
      * @param args Command line arguments
      */
     public static void main(String[] args) {
-        vidHandler vid = new vidHandler();
-        vid.test();
+        //vidHandler vid = new vidHandler();
+        //vid.test();
         try {
             // Load the stego plugins
             PluginManager.loadPlugins();
