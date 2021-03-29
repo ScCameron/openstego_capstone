@@ -14,6 +14,7 @@ import com.openstego.desktop.plugin.lsb.LSBConfig;
 import com.openstego.desktop.ui.OpenStegoUI;
 import com.openstego.desktop.ui.PluginEmbedOptionsUI;
 import com.openstego.desktop.util.LabelUtil;
+import com.openstego.desktop.util.cmd.CmdLineOption;
 import com.openstego.desktop.util.cmd.CmdLineOptions;
 
 import java.util.List;
@@ -52,7 +53,7 @@ public class VideoHandler extends OpenStegoPlugin {
      * Default constructor
      */
     public VideoHandler() {
-        LabelUtil.addNamespace(NAMESPACE, "i18n.AudioPluginLabels");
+        LabelUtil.addNamespace(NAMESPACE, "i18n.VideoPluginLabels");
     }
     
     /**
@@ -84,7 +85,7 @@ public class VideoHandler extends OpenStegoPlugin {
      */
     @Override
     public String getDescription(){
-        return "Embed and extract message files from .wav audio files";
+        return "Embed and extract message files from video files";
     }
     
     /**
@@ -116,29 +117,29 @@ public class VideoHandler extends OpenStegoPlugin {
      * @param msgSize the size of the message being embedded/retrieved
      * @return the number of usable bytes
      */
-    private int findUsableBytes(byte[] file, int msgSize){
-        int count = 0;
-
-        /*for(int i = startTargInd; i < file.length - startTargInd; i+=2){
-            if(file[i] >= byteSizeThreshold || file[i] < -1*byteSizeThreshold) {
-                count++;
-            }
-        }
-        
-        // if there arent enough bytes, lower the insert byte threshold and search for more bytes
-        if(msgSize * 8 > count){
-            System.out.println("Not enough quality bytes, lowering threshold. This may make it easier to detect stego data");
-            count = 0;
-            byteSizeThreshold = 0;
-            for(int i = startTargInd; i < file.length - startTargInd; i+=2){
-                if(file[i] >= byteSizeThreshold || file[i] < -1*byteSizeThreshold) {
-                    count++;
-                }
-            }
-        }*/
-
-        return file.length;
-    }
+//    private int findUsableBytes(byte[] file, int msgSize){
+//        int count = 0;
+//
+//        /*for(int i = startTargInd; i < file.length - startTargInd; i+=2){
+//            if(file[i] >= byteSizeThreshold || file[i] < -1*byteSizeThreshold) {
+//                count++;
+//            }
+//        }
+//        
+//        // if there arent enough bytes, lower the insert byte threshold and search for more bytes
+//        if(msgSize * 8 > count){
+//            System.out.println("Not enough quality bytes, lowering threshold. This may make it easier to detect stego data");
+//            count = 0;
+//            byteSizeThreshold = 0;
+//            for(int i = startTargInd; i < file.length - startTargInd; i+=2){
+//                if(file[i] >= byteSizeThreshold || file[i] < -1*byteSizeThreshold) {
+//                    count++;
+//                }
+//            }
+//        }*/
+//
+//        return file.length;
+//    }
     
     // ------------- Core Stego Methods -------------
 
@@ -156,7 +157,7 @@ public class VideoHandler extends OpenStegoPlugin {
     @Override
     public byte[] embedData(byte[] msg, String msgFileName, byte[] cover, String coverFileName, String stegoFileName) {
         int messInd = 0; // index of current message byte being processed
-        int count = findUsableBytes(cover, msg.length); // number of usable bytes in cover file
+        int count = cover.length; //findUsableBytes(cover, msg.length); // number of usable bytes in cover file
         
         System.out.printf("Message size is %d bytes. %d bytes are able to be inserted\n", msg.length, count/8);
         // check for message length
@@ -294,14 +295,15 @@ public class VideoHandler extends OpenStegoPlugin {
         // get the size of the message
         // because we cant get the byte size threshhold properly without having the message size first,
         // we assume it is the default value. If we get an index out of bounds error, we know it must be reduced
-        while(true){
-            try{
+        //while(true){
+//            try{
                 //rand = new Random(seed);
                 targInd = startTargInd;
                 size = 0;
                 sizeByte = 0;
                 // reconstruct the 4 bytes that indicate message size
                 for(int j = 3; j >=0; j--){
+                    sizeByte = 0;
                     for(int k = 0; k <8; k++){
                         // if the current stego file byte is not a quality byte, jump randomly until you find a quality byte
 //                        while(stegoData[targInd] < byteSizeThreshold && stegoData[targInd] >= -1*byteSizeThreshold){
@@ -314,21 +316,23 @@ public class VideoHandler extends OpenStegoPlugin {
                         targInd += byteSpread;
                     }
                     size = size | (Math.abs(sizeByte) << (j*8));
+                    //System.out.println(sizeByte);
+                    //System.out.println(size);
                 }
-                break;
-            }
-            catch(ArrayIndexOutOfBoundsException e){
-                if(byteSizeThreshold == 0){
-                    System.out.println("This stego file can't seem to hold a message");
-                    java.lang.System.exit(0);
-                }
-                byteSizeThreshold = 0;
-            }
-        }
+                //break;
+            //}
+//            catch(ArrayIndexOutOfBoundsException e){
+//                if(byteSizeThreshold == 0){
+//                    System.out.println("This stego file can't seem to hold a message");
+//                    java.lang.System.exit(0);
+//                }
+//                byteSizeThreshold = 0;
+//            }
+        //}
         
-        System.out.println(size);
+        
         byte[] output = new byte[(int) size];
-        int count = findUsableBytes(stegoData, size);
+        int count = stegoData.length; //findUsableBytes(stegoData, size);
         byteSpread = getSpread(count, size);
         
         // reconstruct the message bit by bit
@@ -475,6 +479,7 @@ public class VideoHandler extends OpenStegoPlugin {
      */
     @Override
     public void populateStdCmdLineOptions(CmdLineOptions options) throws OpenStegoException {
+        options.add("-ff", "--ffmpegLocation", CmdLineOption.TYPE_OPTION, true);
     }
 
     /**

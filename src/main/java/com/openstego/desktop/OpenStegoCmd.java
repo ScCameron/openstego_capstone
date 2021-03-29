@@ -17,7 +17,6 @@ import com.openstego.desktop.util.cmd.CmdLineOptions;
 import com.openstego.desktop.util.cmd.CmdLineParser;
 import com.openstego.desktop.util.cmd.PasswordInput;
 import com.openstego.desktop.plugin.vid.vidHandler;
-import static java.lang.Thread.sleep;
 
 /**
  * This is the main class for OpenStego command line
@@ -105,7 +104,9 @@ public class OpenStegoCmd {
 
             for (int i = 0; i < optionList.size(); i++) {
                 option = optionList.get(i);
+                //System.out.println(option);
                 if (((i == 0) && (option.getType() != CmdLineOption.TYPE_COMMAND)) || ((i > 0) && (option.getType() == CmdLineOption.TYPE_COMMAND))) {
+                    //System.out.println("USAGE");
                     displayUsage();
                     return;
                 }
@@ -137,8 +138,9 @@ public class OpenStegoCmd {
                 coverFileName = options.getOptionValue("-cf");
                 stegoFileName = options.getOptionValue("-sf");
                 
-               if ("VideoStego".equals(pluginName)) {
-                    vid.toRaw(coverFileName);
+                if ("VideoStego".equals(pluginName)) {
+                    //String ffmpegLoc = options.getOptionValue("-ff");
+                    vid.toRaw(coverFileName, options.getOptionValue("-ff"));
                     coverFileName = "raw.yuv";
                 }
                 // Check if we need to prompt for password
@@ -177,9 +179,10 @@ public class OpenStegoCmd {
                     }
                 }
                 if ("VideoStego".equals(pluginName)) {
-                    vid.toMP4(stegoFileName);
+                    
+                    vid.toMP4(stegoFileName, options.getOptionValue("-ff"));
                     // we need to find a better solution for this
-                    sleep(3000);
+                    
                     vid.cleanUp(stegoFileName);
                 }
 
@@ -227,7 +230,7 @@ public class OpenStegoCmd {
                     return;
                 }
                 if ("VideoStego".equals(pluginName)) {
-                    vid.toRaw(stegoFileName);
+                    vid.toRaw(stegoFileName, options.getOptionValue("-ff"));
                     stegoFileName = "raw.yuv";
                 }
                 try {
