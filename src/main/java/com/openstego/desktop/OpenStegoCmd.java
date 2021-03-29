@@ -141,7 +141,7 @@ public class OpenStegoCmd {
                 if ("VideoStego".equals(pluginName)) {
                     //String ffmpegLoc = options.getOptionValue("-ff");
                     vid.toRaw(coverFileName, options.getOptionValue("-ff"));
-                    coverFileName = "raw.yuv";
+                    coverFileName = "rawVideoToBeDeleted.yuv";
                 }
                 // Check if we need to prompt for password
                 if (stego.getConfig().isUseEncryption() && stego.getConfig().getPassword() == null) {
@@ -159,8 +159,8 @@ public class OpenStegoCmd {
                     CommonUtil.writeFile(
                         stego.embedData((msgFileName == null || msgFileName.equals("-")) ? null : new File(msgFileName),
                             coverFileList.size() == 0 ? null : (File) coverFileList.get(0),
-                            (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName+".yuv"),
-                        (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName+".yuv");
+                            (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName+"ToBeDeleted.yuv"),
+                        (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName+"ToBeDeleted.yuv");
                 }
                 // Else loop through all coverfiles and overwrite the same coverfiles with generated stegofiles
                 else {
@@ -231,7 +231,7 @@ public class OpenStegoCmd {
                 }
                 if ("VideoStego".equals(pluginName)) {
                     vid.toRaw(stegoFileName, options.getOptionValue("-ff"));
-                    stegoFileName = "raw.yuv";
+                    stegoFileName = "rawVideoToBeDeleted.yuv";
                 }
                 try {
                     msgData = stego.extractData(new File(stegoFileName));
