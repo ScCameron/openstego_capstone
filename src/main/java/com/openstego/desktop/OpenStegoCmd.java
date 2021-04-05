@@ -16,11 +16,13 @@ import com.openstego.desktop.util.cmd.CmdLineOption;
 import com.openstego.desktop.util.cmd.CmdLineOptions;
 import com.openstego.desktop.util.cmd.CmdLineParser;
 import com.openstego.desktop.util.cmd.PasswordInput;
+import com.openstego.desktop.plugin.vid.vidHandler;
 
 /**
  * This is the main class for OpenStego command line
  */
 public class OpenStegoCmd {
+    static vidHandler vid = new vidHandler();
     /**
      * LabelUtil instance to retrieve labels
      */
@@ -102,7 +104,9 @@ public class OpenStegoCmd {
 
             for (int i = 0; i < optionList.size(); i++) {
                 option = optionList.get(i);
+                //System.out.println(option);
                 if (((i == 0) && (option.getType() != CmdLineOption.TYPE_COMMAND)) || ((i > 0) && (option.getType() == CmdLineOption.TYPE_COMMAND))) {
+                    //System.out.println("USAGE");
                     displayUsage();
                     return;
                 }
@@ -128,11 +132,17 @@ public class OpenStegoCmd {
                 }
             }
 
+            //System.out.println(plugin);
             if (command.equals("embed")) {
                 msgFileName = options.getOptionValue("-mf");
                 coverFileName = options.getOptionValue("-cf");
                 stegoFileName = options.getOptionValue("-sf");
-
+                
+                if ("VideoStego".equals(pluginName)) {
+                    //String ffmpegLoc = options.getOptionValue("-ff");
+                    vid.toRaw(coverFileName, options.getOptionValue("-ff"));
+                    coverFileName = "rawVideoToBeDeleted.yuv";
+                }
                 // Check if we need to prompt for password
                 if (stego.getConfig().isUseEncryption() && stego.getConfig().getPassword() == null) {
                     stego.getConfig().setPassword(PasswordInput.readPassword(labelUtil.getString("cmd.msg.enterPassword") + " "));
@@ -145,12 +155,22 @@ public class OpenStegoCmd {
                         System.err.println(labelUtil.getString("cmd.msg.coverFileNotFound", coverFileName));
                         return;
                     }
-
-                    CommonUtil.writeFile(
+                    //TODO FIX'
+                    if ("VideoStego".equals(pluginName)) {
+                        CommonUtil.writeFile(
+                        stego.embedData((msgFileName == null || msgFileName.equals("-")) ? null : new File(msgFileName),
+                            coverFileList.size() == 0 ? null : (File) coverFileList.get(0),
+                            (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName+"ToBeDeleted.yuv"),
+                        (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName+"ToBeDeleted.yuv");
+                    }
+                    else {
+                        CommonUtil.writeFile(
                         stego.embedData((msgFileName == null || msgFileName.equals("-")) ? null : new File(msgFileName),
                             coverFileList.size() == 0 ? null : (File) coverFileList.get(0),
                             (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName),
                         (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName);
+                        
+                    }
                 }
                 // Else loop through all coverfiles and overwrite the same coverfiles with generated stegofiles
                 else {
@@ -168,6 +188,14 @@ public class OpenStegoCmd {
                         System.err.println(labelUtil.getString("cmd.msg.coverProcessed", coverFileName));
                     }
                 }
+                if ("VideoStego".equals(pluginName)) {
+                    
+                    vid.toMP4(stegoFileName, options.getOptionValue("-ff"));
+                    // we need to find a better solution for this
+                    
+                    vid.cleanUp(stegoFileName);
+                }
+
             } else if (command.equals("embedmark")) {
                 sigFileName = options.getOptionValue("-gf");
                 coverFileName = options.getOptionValue("-cf");
@@ -211,9 +239,15 @@ public class OpenStegoCmd {
                     displayUsage();
                     return;
                 }
-
+                if ("VideoStego".equals(pluginName)) {
+                    vid.toRaw(stegoFileName, options.getOptionValue("-ff"));
+                    stegoFileName = "rawVideoToBeDeleted.yuv";
+                }
                 try {
                     msgData = stego.extractData(new File(stegoFileName));
+                    if ("VideoStego".equals(pluginName)) {
+                        vid.cleanUp(stegoFileName);
+                    }
                 } catch (OpenStegoException osEx) {
                     if (osEx.getErrorCode() == OpenStegoException.INVALID_PASSWORD || osEx.getErrorCode() == OpenStegoException.NO_VALID_PLUGIN) {
                         if (stego.getConfig().getPassword() == null) {
@@ -329,6 +363,7 @@ public class OpenStegoCmd {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        
     }
 
     /**

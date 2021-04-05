@@ -25,7 +25,7 @@ import com.openstego.desktop.util.CommonUtil;
 import com.openstego.desktop.util.LabelUtil;
 import com.openstego.desktop.util.PluginManager;
 import com.openstego.desktop.util.UserPreferences;
-
+import com.openstego.desktop.plugin.vid.vidHandler;
 
 /**
  * This is the main class for OpenStego. It includes the {@link #main(String[])} method which provides the
@@ -427,6 +427,8 @@ public class OpenStego {
      * @param args Command line arguments
      */
     public static void main(String[] args) {
+        //vidHandler vid = new vidHandler();
+        //vid.test();
         try {
             // Load the stego plugins
             PluginManager.loadPlugins();
