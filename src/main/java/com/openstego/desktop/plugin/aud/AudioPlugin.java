@@ -117,7 +117,7 @@ public class AudioPlugin extends OpenStegoPlugin {
         int count = 0;
 
         for(int i = startTargInd; i < file.length - startTargInd; i+=2){
-            if(file[i] >= byteSizeThreshold || file[i] < -1*byteSizeThreshold) {
+            if(file[i] >= byteSizeThreshold || file[i] < 0) {
                 count++;
             }
         }
@@ -128,7 +128,7 @@ public class AudioPlugin extends OpenStegoPlugin {
             count = 0;
             byteSizeThreshold = 0;
             for(int i = startTargInd; i < file.length - startTargInd; i+=2){
-                if(file[i] >= byteSizeThreshold || file[i] < -1*byteSizeThreshold) {
+                if(file[i] >= byteSizeThreshold || file[i] < 0) {
                     count++;
                 }
             }
@@ -189,7 +189,7 @@ public class AudioPlugin extends OpenStegoPlugin {
         for(int j = 0; j < 4; j++){ // fixed 4 bytes for message size
             for(int k = 0; k < 8; k++){
                 // if the current cover file byte is not a quality byte, jump randomly until you find a quality byte
-                while(cover[targInd] < byteSizeThreshold && cover[targInd] >= -1*byteSizeThreshold){
+                while(cover[targInd] < byteSizeThreshold && cover[targInd] >= 0){
                     targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
                 }
                 insertBit = (byte) (messLenArray[j] & (byte) 1);
@@ -217,7 +217,7 @@ public class AudioPlugin extends OpenStegoPlugin {
                 messageByte = (byte) (messageByte >> 1);
 
                 // if the current cover file byte is not a quality byte, jump randomly until you find a quality byte
-                while(cover[targInd] < byteSizeThreshold && cover[targInd] >= -1*byteSizeThreshold){
+                while(cover[targInd] < byteSizeThreshold && cover[targInd] >= 0){
                     targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
                 }
                 cover[targInd] = (byte) ((cover[targInd] & 254) | insertBit);
@@ -258,7 +258,7 @@ public class AudioPlugin extends OpenStegoPlugin {
         
         int size = 0; // size of message
         int tempByte;
-        int sizeByte = 0;
+        int sizeByte;
         
         // set the rng seed to the hash of the encryption password
         int seed;
@@ -269,22 +269,23 @@ public class AudioPlugin extends OpenStegoPlugin {
             seed = config.getPassword().hashCode();
         }
         // RNG used to jump pseudorandom number of bytes ahead to extract the spread data
-        Random rand = new Random(seed);
+        Random rand;// = new Random(seed);
         
         // get the size of the message
         // because we cant get the byte size threshhold properly without having the message size first,
         // we assume it is the default value. If we get an index out of bounds error, we know it must be reduced
         while(true){
             try{
-                //rand = new Random(seed);
+                rand = new Random(seed);
                 targInd = startTargInd;
                 size = 0;
-                sizeByte = 0;
+                //sizeByte = 0;
                 // reconstruct the 4 bytes that indicate message size
                 for(int j = 3; j >=0; j--){
+                    sizeByte = 0;
                     for(int k = 0; k <8; k++){
                         // if the current stego file byte is not a quality byte, jump randomly until you find a quality byte
-                        while(stegoData[targInd] < byteSizeThreshold && stegoData[targInd] >= -1*byteSizeThreshold){
+                        while(stegoData[targInd] < byteSizeThreshold && stegoData[targInd] >= 0){
                             targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
                         }
                         extractedByte = stegoData[targInd];
@@ -317,7 +318,7 @@ public class AudioPlugin extends OpenStegoPlugin {
             // reconstruct 1 message byte out of 8 cover file bytes
             for(int i = 0; i <8; i++){
                 // if the current cover file byte is not a quality byte, jump randomly until you find a quality byte
-                while(stegoData[targInd] < byteSizeThreshold && stegoData[targInd] >= -1*byteSizeThreshold){
+                while(stegoData[targInd] < byteSizeThreshold && stegoData[targInd] >= 0){
                     targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
                 }
                 extractedByte = stegoData[targInd];

@@ -155,12 +155,22 @@ public class OpenStegoCmd {
                         System.err.println(labelUtil.getString("cmd.msg.coverFileNotFound", coverFileName));
                         return;
                     }
-
-                    CommonUtil.writeFile(
+                    //TODO FIX'
+                    if ("VideoStego".equals(pluginName)) {
+                        CommonUtil.writeFile(
                         stego.embedData((msgFileName == null || msgFileName.equals("-")) ? null : new File(msgFileName),
                             coverFileList.size() == 0 ? null : (File) coverFileList.get(0),
                             (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName+"ToBeDeleted.yuv"),
                         (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName+"ToBeDeleted.yuv");
+                    }
+                    else {
+                        CommonUtil.writeFile(
+                        stego.embedData((msgFileName == null || msgFileName.equals("-")) ? null : new File(msgFileName),
+                            coverFileList.size() == 0 ? null : (File) coverFileList.get(0),
+                            (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName),
+                        (stegoFileName == null || stegoFileName.equals("-")) ? null : stegoFileName);
+                        
+                    }
                 }
                 // Else loop through all coverfiles and overwrite the same coverfiles with generated stegofiles
                 else {

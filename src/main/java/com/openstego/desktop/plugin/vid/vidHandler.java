@@ -38,7 +38,7 @@ public class vidHandler {
             Runtime.getRuntime().exec("cmd /c "+ffmpegLocation+"\\ffmpeg -y -i " + filename + " -c:v rawvideo -pix_fmt yuv420p rawVideoToBeDeleted.yuv");
             
             //Get audio
-            Runtime.getRuntime().exec("cmd /c "+ffmpegLocation+"\\ffmpeg -y -i "+filename + " vidAudioToBeDeleted");
+            Runtime.getRuntime().exec("cmd /c "+ffmpegLocation+"\\ffmpeg -y -i "+filename + " vidAudioToBeDeleted.mp3");
             try {
                 // Store fps
                 p = Runtime.getRuntime().exec("cmd /c "+ffmpegLocation+"\\ffprobe -v error -select_streams v -of default=noprint_wrappers=1:nokey=1 -show_entries stream=r_frame_rate " + filename);         
@@ -83,9 +83,9 @@ public class vidHandler {
             }
             
             // include audio if it existed in the original
-            f = new File("vidAudioToBeDeleted");
+            f = new File("vidAudioToBeDeleted.mp3");
             if(f.exists() && !f.isDirectory()) { 
-                pb = new ProcessBuilder("powershell", "-Command", ""+ffmpegLocation+"\\ffmpeg -y -f rawvideo -pix_fmt yuv420p -s:v "+res+" -i "+stegoFileName+"ToBeDeleted.yuv -i vidAudioToBeDeleted -c:v libx264 -preset veryslow -crf 0 "+stegoFileName+" 2>$null");
+                pb = new ProcessBuilder("powershell", "-Command", ""+ffmpegLocation+"\\ffmpeg -y -f rawvideo -pix_fmt yuv420p -s:v "+res+" -i "+stegoFileName+"ToBeDeleted.yuv -i vidAudioToBeDeleted.mp3 -c:v libx264 -preset veryslow -crf 0 "+stegoFileName+" 2>$null");
             }
             else{
                 pb = new ProcessBuilder("powershell", "-Command", ""+ffmpegLocation+"\\ffmpeg -y -f rawvideo -pix_fmt yuv420p -s:v "+res+" -i "+stegoFileName+"ToBeDeleted.yuv -c:v libx264 -preset veryslow -crf 0 "+stegoFileName+" 2>$null");
@@ -127,7 +127,7 @@ public class vidHandler {
     public void cleanUp(String stegoFileName){
         try {      
             Runtime.getRuntime().exec("cmd /c   Del rawVideoToBeDeleted.yuv ");
-            Runtime.getRuntime().exec("cmd /c   Del vidAudioToBeDeleted ");
+            Runtime.getRuntime().exec("cmd /c   Del vidAudioToBeDeleted.mp3 ");
             Runtime.getRuntime().exec("cmd /c   Del "+stegoFileName+"ToBeDeleted.yuv");
         } catch (Exception e) {
             
