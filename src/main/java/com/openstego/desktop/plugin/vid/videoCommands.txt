@@ -1,0 +1,4 @@
+The VideoStego plugin adds some commands
+(optional) -ff or --ffmpegLocation for the location of ffmpeg and ffprobe
+(optional) -fc or --ffmpegCommand to replace the ffmpeg video encoding command with your own, the
+	predetermined raw input file name is 'rawVideoToBeDeleted.yuv'

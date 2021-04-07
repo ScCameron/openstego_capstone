@@ -69,7 +69,7 @@ public class vidHandler {
      * @param stegoFileName the raw video to convert
      * @param ffmpegLocation the path to the folder containing ffmpeg
      */
-    public void toMP4(String stegoFileName, String ffmpegLocation) {
+    public void toMP4(String stegoFileName, String ffmpegLocation, String ffmpegCommand) {
         File f;
         try {
             ProcessBuilder pb;
@@ -83,12 +83,18 @@ public class vidHandler {
             }
             
             // include audio if it existed in the original
-            f = new File("vidAudioToBeDeleted.mp3");
-            if(f.exists() && !f.isDirectory()) { 
-                pb = new ProcessBuilder("powershell", "-Command", ""+ffmpegLocation+"\\ffmpeg -y -f rawvideo -pix_fmt yuv420p -s:v "+res+" -i "+stegoFileName+"ToBeDeleted.yuv -i vidAudioToBeDeleted.mp3 -c:v libx264 -preset veryslow -crf 0 "+stegoFileName+" 2>$null");
+            if(ffmpegCommand == null) {
+                f = new File("vidAudioToBeDeleted.mp3");
+                if(f.exists() && !f.isDirectory()) { 
+                    pb = new ProcessBuilder("powershell", "-Command", ""+ffmpegLocation+"\\ffmpeg -y -f rawvideo -pix_fmt yuv420p -s:v "+res+" -i "+stegoFileName+"ToBeDeleted.yuv -i vidAudioToBeDeleted.mp3 -c:v libx264 -preset veryslow -crf 0 "+stegoFileName+" 2>$null");
+                }
+                else{
+                    pb = new ProcessBuilder("powershell", "-Command", ""+ffmpegLocation+"\\ffmpeg -y -f rawvideo -pix_fmt yuv420p -s:v "+res+" -i "+stegoFileName+"ToBeDeleted.yuv -c:v libx264 -preset veryslow -crf 0 "+stegoFileName+" 2>$null");
+                }
             }
-            else{
-                pb = new ProcessBuilder("powershell", "-Command", ""+ffmpegLocation+"\\ffmpeg -y -f rawvideo -pix_fmt yuv420p -s:v "+res+" -i "+stegoFileName+"ToBeDeleted.yuv -c:v libx264 -preset veryslow -crf 0 "+stegoFileName+" 2>$null");
+            else {
+                // in case the user wants to issue their own custom ffmpeg commands
+                pb = new ProcessBuilder("powershell", "-Command", ""+ffmpegLocation+"\\"+ffmpegCommand);
             }
             
             // print output from ffmpeg

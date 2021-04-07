@@ -139,7 +139,6 @@ public class OpenStegoCmd {
                 stegoFileName = options.getOptionValue("-sf");
                 
                 if ("VideoStego".equals(pluginName)) {
-                    //String ffmpegLoc = options.getOptionValue("-ff");
                     vid.toRaw(coverFileName, options.getOptionValue("-ff"));
                     coverFileName = "rawVideoToBeDeleted.yuv";
                 }
@@ -190,7 +189,7 @@ public class OpenStegoCmd {
                 }
                 if ("VideoStego".equals(pluginName)) {
                     
-                    vid.toMP4(stegoFileName, options.getOptionValue("-ff"));
+                    vid.toMP4(stegoFileName, options.getOptionValue("-ff"), options.getOptionValue("-fc"));
                     // we need to find a better solution for this
                     
                     vid.cleanUp(stegoFileName);
