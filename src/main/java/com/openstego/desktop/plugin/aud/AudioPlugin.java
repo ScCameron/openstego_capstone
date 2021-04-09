@@ -30,6 +30,7 @@ public class AudioPlugin extends OpenStegoPlugin {
      * Constant for Namespace to use for this plugin
      */
     public final static String NAMESPACE = "AudioLSB";
+    int bytesPerSample = 0; // 2 for standard 16 bit WAV files
     int byteSpread = 2; // number of bytes between each insert. Is changed dynamically
     int startTargInd = 112; // the byte start point of the message in the cover file. MUST be even to align with WAV bytes
     int targInd = startTargInd;
@@ -113,10 +114,10 @@ public class AudioPlugin extends OpenStegoPlugin {
      * @param msgSize the size of the message being embedded/retrieved
      * @return the number of usable bytes
      */
-    private int findUsableBytes(byte[] file, int msgSize){
+    private int findUsableBytes(byte[] file, int msgSize, int bytesPerSample){
         int count = 0;
 
-        for(int i = startTargInd; i < file.length - startTargInd; i+=2){
+        for(int i = startTargInd; i < file.length - startTargInd; i+=bytesPerSample){
             if(file[i] >= byteSizeThreshold || file[i] < 0) {
                 count++;
             }
@@ -127,7 +128,7 @@ public class AudioPlugin extends OpenStegoPlugin {
             System.out.println("Not enough quality bytes, lowering threshold. This may make it easier to detect stego data");
             count = 0;
             byteSizeThreshold = 0;
-            for(int i = startTargInd; i < file.length - startTargInd; i+=2){
+            for(int i = startTargInd; i < file.length - startTargInd; i+=bytesPerSample){
                 if(file[i] >= byteSizeThreshold || file[i] < 0) {
                     count++;
                 }
@@ -153,7 +154,18 @@ public class AudioPlugin extends OpenStegoPlugin {
     @Override
     public byte[] embedData(byte[] msg, String msgFileName, byte[] cover, String coverFileName, String stegoFileName) {
         int messInd = 0; // index of current message byte being processed
-        int count = findUsableBytes(cover, msg.length); // number of usable bytes in cover file
+        
+        // currently the number of bits in a sample
+        bytesPerSample = (cover[0x23] << 8) | (cover[0x22]);
+        if(bytesPerSample % 8  != 0){
+            System.out.println("We only support WAV files with a multiple of 8 bits per sample");
+            java.lang.System.exit(0);
+        }
+        
+        // now the number of bytes per sample
+        bytesPerSample = bytesPerSample >> 3;
+        
+        int count = findUsableBytes(cover, msg.length, bytesPerSample); // number of usable bytes in cover file
         
         System.out.printf("Message size is %d bytes. %d bytes are able to be inserted\n", msg.length, count/8);
         // check for message length
@@ -190,7 +202,7 @@ public class AudioPlugin extends OpenStegoPlugin {
             for(int k = 0; k < 8; k++){
                 // if the current cover file byte is not a quality byte, jump randomly until you find a quality byte
                 while(cover[targInd] < byteSizeThreshold && cover[targInd] >= 0){
-                    targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
+                    targInd += (rand.nextInt(byteSpread/2) + 1) * bytesPerSample;
                 }
                 insertBit = (byte) (messLenArray[j] & (byte) 1);
                 cover[targInd] = (byte) ((cover[targInd] & 254) | insertBit);
@@ -218,10 +230,10 @@ public class AudioPlugin extends OpenStegoPlugin {
 
                 // if the current cover file byte is not a quality byte, jump randomly until you find a quality byte
                 while(cover[targInd] < byteSizeThreshold && cover[targInd] >= 0){
-                    targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
+                    targInd += (rand.nextInt(byteSpread/2) + 1) * bytesPerSample;
                 }
                 cover[targInd] = (byte) ((cover[targInd] & 254) | insertBit);
-                targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
+                targInd += (rand.nextInt(byteSpread/2) + 1) * bytesPerSample;
             } 
         }
         System.out.println("Done Embedding");
@@ -260,6 +272,16 @@ public class AudioPlugin extends OpenStegoPlugin {
         int tempByte;
         int sizeByte;
         
+        // currently the number of bits in a sample
+        bytesPerSample = (stegoData[0x23] << 8) | (stegoData[0x22]);
+        if(bytesPerSample % 8  != 0){
+            System.out.println("We only support WAV files with a multiple of 8 bits per sample");
+            java.lang.System.exit(0);
+        }
+        
+        // now the number of bytes per sample
+        bytesPerSample = bytesPerSample >> 3;
+        
         // set the rng seed to the hash of the encryption password
         int seed;
         if(config.getPassword() == null){
@@ -286,7 +308,7 @@ public class AudioPlugin extends OpenStegoPlugin {
                     for(int k = 0; k <8; k++){
                         // if the current stego file byte is not a quality byte, jump randomly until you find a quality byte
                         while(stegoData[targInd] < byteSizeThreshold && stegoData[targInd] >= 0){
-                            targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
+                            targInd += (rand.nextInt(byteSpread/2) + 1) * bytesPerSample;
                         }
                         extractedByte = stegoData[targInd];
                         tempByte = (extractedByte & 1);
@@ -308,7 +330,7 @@ public class AudioPlugin extends OpenStegoPlugin {
         }
         
         byte[] output = new byte[(int) size];
-        int count = findUsableBytes(stegoData, size);
+        int count = findUsableBytes(stegoData, size, bytesPerSample);
         byteSpread = getSpread(count, size);
         
         // reconstruct the message bit by bit
@@ -319,14 +341,14 @@ public class AudioPlugin extends OpenStegoPlugin {
             for(int i = 0; i <8; i++){
                 // if the current cover file byte is not a quality byte, jump randomly until you find a quality byte
                 while(stegoData[targInd] < byteSizeThreshold && stegoData[targInd] >= 0){
-                    targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
+                    targInd += (rand.nextInt(byteSpread/2) + 1) * bytesPerSample;
                 }
                 extractedByte = stegoData[targInd];
                 tempByte = (byte) (extractedByte & (byte) 1);
                 tempByte = (byte) (tempByte << i);
                 messageByte = (byte) (tempByte | messageByte);
 
-                targInd += (rand.nextInt(byteSpread/2) + 1) * 2;
+                targInd += (rand.nextInt(byteSpread/2) + 1) * bytesPerSample;
             }
             output[messInd] = messageByte;
             
