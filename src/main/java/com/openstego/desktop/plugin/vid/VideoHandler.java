@@ -330,6 +330,7 @@ public class VideoHandler extends OpenStegoPlugin {
     @Override
     public void populateStdCmdLineOptions(CmdLineOptions options) throws OpenStegoException {
         options.add("-ff", "--ffmpegLocation", CmdLineOption.TYPE_OPTION, true);
+        options.add("-fc", "--ffmpegCommand", CmdLineOption.TYPE_OPTION, true);
     }
 
     /**
