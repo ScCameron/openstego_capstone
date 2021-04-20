@@ -1,9 +1,13 @@
 # OpenStego
-OpenStego is a steganography application that provides two functionalities:
+OpenStego is a steganography application that provides various functionalities:
 
 1. Data Hiding: It can hide any data within an image file.
 
 2. Watermarking: Watermarking image files with an invisible signature. It can be used to detect unauthorized file copying.
+
+3. Audio Hiding: It can hide data in WAV and MP3 audio files.
+
+4. Video Hiding: It can hide data in various popular video file formats.
 
 ## Usage
 
@@ -43,3 +47,5 @@ GNU General Public License 2.0 (GPL) (see ```LICENSE``` file)
 
 ## Acknowledgement
 The digital watermarking code in this product is based on the code provided by Peter Meerwald. Refer to his excellent thesis on [watermarking](http://www.cosy.sbg.ac.at/~pmeerw/Watermarking/): Peter Meerwald, Digital Image Watermarking in the Wavelet Transfer Domain, Master's Thesis, Department of Scientific Computing, University of Salzburg, Austria, January 2001.
+
+The audio and video hiding plugins were implemented by Scott Cameron and Patrick Martel as a part of a university capstone project.
