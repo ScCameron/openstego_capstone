@@ -5,9 +5,9 @@ OpenStego is a steganography application that provides various functionalities:
 
 2. Watermarking: Watermarking image files with an invisible signature. It can be used to detect unauthorized file copying.
 
-3. Audio Hiding: It can hide data in WAV and MP3 audio files.
+3. Audio Hiding: It can hide data in WAV and MP3 audio files using the command line.
 
-4. Video Hiding: It can hide data in various popular video file formats.
+4. Video Hiding: It can hide data in various popular video file formats using the command line.
 
 ## Usage
 
